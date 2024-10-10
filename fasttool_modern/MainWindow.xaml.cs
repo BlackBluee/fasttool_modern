@@ -28,6 +28,7 @@ namespace fasttool_modern
             this.InitializeComponent();
             NavView.SelectedItem = NavView.MenuItems[0];
         }
+        
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             var selectedItem = args.SelectedItem as NavigationViewItem;

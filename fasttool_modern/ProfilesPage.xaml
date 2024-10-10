@@ -9,7 +9,23 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <TextBlock Text="Profiles" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48" />
-    </Grid>
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MinHeight="640">
+        <TextBlock Text="Manage profiles" FontSize="18" Margin="0,0,0,10"></TextBlock>
+        <Grid ColumnSpacing="10" ColumnDefinitions=" *, Auto">
+            <TextBlock Grid.Column="0" Text="Home"></TextBlock>
+            <Button Grid.Column="1" Content="Remove"></Button>
+        </Grid>
+        
+
+        <Grid ColumnSpacing="10" ColumnDefinitions=" *, Auto" RowDefinitions="Auto, Auto"  Margin="0,200,0,0">
+            <TextBlock Text="Add screen profile" FontSize="18" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10"></TextBlock>
+            <ComboBox Grid.Column="0" Grid.Row="1" Width="200">
+                <x:String>chrome</x:String>
+            </ComboBox>
+            <Button Grid.Column="1" Grid.Row="1">
+                <FontIcon Glyph="&#xE710;" />
+            </Button>
+        </Grid>
+
+    </StackPanel>
 </Page>

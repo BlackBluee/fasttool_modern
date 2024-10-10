@@ -9,8 +9,49 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <TextBlock Text="Dashboard" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48" />
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,100,0,0">
+        <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions ="Auto" Margin="0,0,0,10">
+            <TextBlock Grid.Column="0"  Text="Screen Profile" HorizontalAlignment="Left" FontSize="24"></TextBlock>
+            <ComboBox Grid.Column="2" PlaceholderText="Home" Width="200">
+                    <x:String>Home</x:String>
+                    <x:String>Profile 1</x:String>
+                    <x:String>Profile 2</x:String>
+                    <x:String>Profile 3</x:String>
+                </ComboBox>
+        </Grid>
 
-    </Grid>
+        <Grid Width="Auto" Height="Auto" HorizontalAlignment="Center" ColumnDefinitions="Auto, Auto, Auto, Auto" RowDefinitions ="Auto, Auto">
+            <Button Margin="10" Width="160" Height="160" Grid.Column="0" Grid.Row="0">1</Button>
+            <Button Margin="10" Width="160" Height="160" Grid.Column="1" Grid.Row="0">2</Button>
+            <Button Margin="10" Width="160" Height="160" Grid.Column="2" Grid.Row="0">3</Button>
+            <Button Margin="10" Width="160" Height="160" Grid.Column="3" Grid.Row="0">4</Button>
+            <Button Margin="10" Width="160" Height="160" Grid.Column="0" Grid.Row="1">5</Button>
+            <Button Margin="10" Width="160" Height="160" Grid.Column="1" Grid.Row="1">6</Button>
+            <Button Margin="10" Width="160" Height="160" Grid.Column="2" Grid.Row="1">7</Button>
+            <Button Margin="10" Width="160" Height="160" Grid.Column="3" Grid.Row="1">8</Button>
+        </Grid>
+
+        <Grid MinWidth="640" Height="Auto" ColumnDefinitions="Auto, *, Auto" Margin="0,32,0,0">
+            <TextBlock Text="Button 1" Grid.Row="0" Grid.Column="0" FontSize="22"></TextBlock>
+            <Button Grid.Row="0" Grid.Column="2">
+                <FontIcon Glyph="&#xEE71;" FontSize="22"/>
+            </Button>
+        </Grid>
+        <Line Stroke="White" Margin="0,16,0,16"
+      X1="0" Y1="0"
+      X2="800" Y2="0"
+      StrokeThickness="3"/>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Action:" FontSize="20"></TextBlock>
+                <ComboBox Width="200" Margin="10,0,0,10"></ComboBox>
+                <TextBox Width="320" Margin="10,0,32,10"></TextBox>
+                <Button Width="100" Margin="64,0,0,10" Content="Choose"></Button>
+            </StackPanel>
+        </StackPanel>
+        
+
+    </StackPanel>
+
+
 </Page>

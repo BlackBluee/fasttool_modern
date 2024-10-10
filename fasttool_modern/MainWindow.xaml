@@ -25,10 +25,15 @@
         </NavigationView.MenuItems>
         <NavigationView.FooterMenuItems>
             <NavigationViewItem Content="Settings" Tag="SettingsPage" Icon="Setting" />
+            
         </NavigationView.FooterMenuItems>
 
-    <Frame x:Name="ContentFrame"/>
-
+        
+        <Frame x:Name="ContentFrame"/>
+        
     </NavigationView>
+ 
     
+
+
 </Window>
