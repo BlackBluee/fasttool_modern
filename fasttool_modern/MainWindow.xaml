@@ -10,9 +10,13 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     Title="Fasttool"
     >
+    
 
+
+    
 
     <NavigationView 
+        Loaded="OnWindowLoaded"
         x:Name="NavView"
         PaneDisplayMode="Left"
         IsSettingsVisible="False"
@@ -28,12 +32,18 @@
             
         </NavigationView.FooterMenuItems>
 
+
+        <Frame x:Name="ContentFrame">
+            
+        </Frame>
         
-        <Frame x:Name="ContentFrame"/>
-        
+
     </NavigationView>
- 
-    
+
+
+
+
+
 
 
 </Window>
