@@ -14,10 +14,8 @@
         <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions ="Auto" Margin="0,0,0,10">
             <TextBlock Grid.Column="0"  Text="Screen Profile" HorizontalAlignment="Left" FontSize="24"></TextBlock>
                 <ComboBox x:Name="ComboBoxProfiles" Grid.Column="2"  Width="200">
-                    <ComboBoxItem Content="Home" />
-                    <x:String>Profile 1</x:String>
-                    <x:String>Profile 2</x:String>
-                    <x:String>Profile 3</x:String>
+                    
+                    
                 </ComboBox>
         </Grid>
 

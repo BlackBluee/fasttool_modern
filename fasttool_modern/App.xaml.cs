@@ -85,7 +85,7 @@ namespace fasttool_modern
                 CREATE TABLE buttons (
                     did TEXT,
                     pid TEXT,
-                    bid TEXT PRIMARY KEY,
+                    bid TEXT,
                     aid TEXT,
                     image TEXT,           
                     color TEXT,

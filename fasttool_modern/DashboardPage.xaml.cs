@@ -10,11 +10,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using static System.Net.Mime.MediaTypeNames;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -29,17 +31,25 @@ namespace fasttool_modern
     {
         string dbFilePath = "myDatabase.db";
         int modifyButton = 1;
+
+        string selectedDid = "1";
+        string selectedPid = "";
+        string selectedBid = "";
+        string selectedAid = "";
+
+
+
         public DashboardPage()
         {
             this.InitializeComponent();
-            
-            
+            loadProfiles();
+
             try
             {
                 //InsertDevice("1", "model1", 1.0, "port1");
                 //var localFolder = ApplicationData.Current.LocalFolder;
                 //var wdbFilePath = Path.Combine(localFolder.Path, "myDatabase.db");
-                
+
                 //OutputTextBlock.Text += $"Lokalizacja pliku bazy danych: {wdbFilePath}\n";
                 //OutputTextBlock.Text += viewDevices(new SqliteConnection($"Data Source={dbFilePath}\n"));
             }
@@ -49,14 +59,14 @@ namespace fasttool_modern
             }
             catch (Exception ex)
             {
-                    Console.WriteLine($"Błąd: {ex.Message}\n");
+                Console.WriteLine($"Błąd: {ex.Message}\n");
             }
             ComboBoxProfiles.SelectedIndex = 0;
             bt1.IsEnabled = false;
             modifyButton = 1;
         }
 
-        
+
 
         public void InsertDevice(string did, string model, double version, string port)
         {
@@ -100,12 +110,161 @@ namespace fasttool_modern
         }
         private void SaveButton(object sender, RoutedEventArgs e)
         {
-            var selectedItem = ComboBoxType.SelectedItem as ComboBoxItem;
-            string comboBoxValue = selectedItem?.Content.ToString() ?? "Nie wybrano opcji";
-            var selectedItem2 = ComboBoxProfiles.SelectedItem as ComboBoxItem;
-            string comboBoxValue2 = selectedItem2?.Content.ToString() ?? "Nie wybrano opcji";
-            output.Text = $"Profil: {comboBoxValue2}, Przycisk:{modifyButton} , Typ: {comboBoxValue}, akcja: {TextAction.Text}";
-            
+            getProfileID();
+            var selectedItem1 = ComboBoxType.SelectedItem as ComboBoxItem;
+            string comboBoxValue = selectedItem1?.Content.ToString() ?? "Nie wybrano opcji";
+
+            output.Text = $"Profil ID: {selectedPid}, Przycisk:{modifyButton} , Typ: {comboBoxValue}, akcja: {TextAction.Text}";
+
+            // did, pid, bid
+            addAction();
+
+            addButton(selectedDid, selectedPid, modifyButton.ToString(), selectedAid, "image1", "null");
+
+
         }
+
+        //device , profile, button, action
+        private void addButton(string did, string pid, string bid, string aid, string image, string color)
+        {
+            using (var connection = new SqliteConnection($"Data Source={dbFilePath}"))
+            {
+                connection.Open();
+                string insertQuery = "INSERT INTO buttons (did, pid, bid, aid, image, color) VALUES (@did, @pid, @bid, @aid, @image, @color);";
+                using (var command = new SqliteCommand(insertQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@did", did);
+                    command.Parameters.AddWithValue("@pid", pid);
+                    command.Parameters.AddWithValue("@bid", bid);
+                    command.Parameters.AddWithValue("@aid", aid);
+                    command.Parameters.AddWithValue("@image", image);
+                    command.Parameters.AddWithValue("@color", color);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        static string getButton(string did, string pid, string bid, string option)
+        {
+            string voption = option;
+            string action = "";
+            string image = "";
+            string color = "";
+            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            {
+                connection.Open();
+                string selectQuery = "SELECT aid, image, color FROM buttons WHERE did = @did AND pid = @pid AND bid = @bid;";
+                using (var command = new SqliteCommand(selectQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@did", did);
+                    command.Parameters.AddWithValue("@pid", pid);
+                    command.Parameters.AddWithValue("@bid", bid);
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            // Odczytujemy model, wersję i port
+                            action = reader.GetString(0); // Indeks 0 - model
+                            image = reader.GetString(1); // Indeks 1 - version
+                            color = reader.GetString(2); // Indeks 2 - port
+                        }
+                    }
+                }
+            }
+            if (voption == "action")
+            {
+                return action;
+            }
+            else if (voption == "image")
+            {
+                return image;
+            }
+            else if (voption == "color")
+            {
+                return color;
+            }
+            else
+            {
+                return "error";
+            }
+
+        }
+
+        private void loadProfiles()
+        {
+            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            {
+                connection.Open();
+                string selectQuery = "SELECT profile FROM profiles;";
+                using (var command = new SqliteCommand(selectQuery, connection))
+                {
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            // Odczytujemy model, wersję i port
+                            ComboBoxProfiles.Items.Add(reader.GetString(0)); // Indeks 0 - model
+                        }
+                    }
+                }
+            }
+        }
+
+        private void getProfileID()
+        {
+
+            string profile = ComboBoxProfiles.SelectedItem as string;
+            string pid = "";
+            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            {
+                connection.Open();
+                string selectQuery = "SELECT pid FROM profiles WHERE profile = @profile;";
+                using (var command = new SqliteCommand(selectQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@profile", profile);
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            // Odczytujemy model, wersję i port
+                            pid = reader.GetString(0); // Indeks 0 - model
+                        }
+                    }
+                }
+            }
+            selectedPid = pid;
+
+        }
+
+        private void addAction()
+        {
+            using (var connection = new SqliteConnection($"Data Source={dbFilePath}"))
+            {
+                connection.Open();
+                var selectedItem = ComboBoxType.SelectedItem as ComboBoxItem;
+                //selectedItem.ToString();
+                string comboBoxValue = selectedItem?.Content.ToString() ?? "None";
+                selectedAid = GenerateRandomString(4);
+                string insertQuery = "INSERT INTO actions (aid, type, doaction) VALUES (@aid, @type, @doaction);";
+                using (var command = new SqliteCommand(insertQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@aid", selectedAid);
+                    command.Parameters.AddWithValue("@type", comboBoxValue);
+                    command.Parameters.AddWithValue("@doaction", TextAction.Text);
+
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+        private static string GenerateRandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            Random random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+                                        .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
     }
 }
