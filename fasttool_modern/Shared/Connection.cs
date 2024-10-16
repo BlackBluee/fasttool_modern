@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace fasttool_modern
+namespace fasttool_modern.Shared
 {
 
     public class Connection

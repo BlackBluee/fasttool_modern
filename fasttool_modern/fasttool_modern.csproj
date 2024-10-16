@@ -23,7 +23,6 @@
     <None Remove="ConnectionPage.xaml" />
     <None Remove="DashboardPage.xaml" />
     <None Remove="ProfilesPage.xaml" />
-    <None Remove="SettingsPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,11 +58,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="SettingsPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <Page Update="ConnectionPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -89,5 +83,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PRIResource Remove="Images\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Windows\" />
+    <Folder Include="Pages\" />
   </ItemGroup>
 </Project>
