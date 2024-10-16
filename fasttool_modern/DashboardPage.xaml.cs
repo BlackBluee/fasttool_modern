@@ -24,9 +24,6 @@ using static System.Net.Mime.MediaTypeNames;
 namespace fasttool_modern
 {
     //C:\Users\Kacper\AppData\Local\Packages\bf3de1fd-c129-47a6-9a79-f2c72e355dd6_a0tqctefsy7vm\LocalState
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class DashboardPage : Page
     {
         string dbFilePath = "myDatabase.db";
@@ -36,6 +33,7 @@ namespace fasttool_modern
         string selectedPid = "";
         string selectedBid = "";
         string selectedAid = "";
+        string selectedImage = "image";
 
 
 
@@ -46,12 +44,13 @@ namespace fasttool_modern
 
             try
             {
-                //InsertDevice("1", "model1", 1.0, "port1");
-                //var localFolder = ApplicationData.Current.LocalFolder;
-                //var wdbFilePath = Path.Combine(localFolder.Path, "myDatabase.db");
+                /*
+                InsertDevice("1", "model1", 1.0, "port1");
+                var localFolder = ApplicationData.Current.LocalFolder;
+                var wdbFilePath = Path.Combine(localFolder.Path, "myDatabase.db");
 
-                //OutputTextBlock.Text += $"Lokalizacja pliku bazy danych: {wdbFilePath}\n";
-                //OutputTextBlock.Text += viewDevices(new SqliteConnection($"Data Source={dbFilePath}\n"));
+                output.Text += $"Lokalizacja pliku bazy danych: {wdbFilePath}\n";
+                output.Text += viewDevices(new SqliteConnection($"Data Source={dbFilePath}\n"));*/
             }
             catch (SqliteException ex)
             {
@@ -99,10 +98,9 @@ namespace fasttool_modern
                 {
                     while (reader.Read())
                     {
-                        // Odczytujemy model, wersję i port
-                        view += $"Model: {reader.GetString(0)}\n"; // Indeks 0 - model
-                        view += $"Wersja: {reader.GetDouble(1)}\n"; // Indeks 1 - version
-                        view += $"Port: {reader.GetString(2)}\n"; // Indeks 2 - port
+                        view += $"Model: {reader.GetString(0)}\n"; 
+                        view += $"Wersja: {reader.GetDouble(1)}\n"; 
+                        view += $"Port: {reader.GetString(2)}\n"; 
                     }
                 }
             }
@@ -116,10 +114,9 @@ namespace fasttool_modern
 
             output.Text = $"Profil ID: {selectedPid}, Przycisk:{modifyButton} , Typ: {comboBoxValue}, akcja: {TextAction.Text}";
 
-            // did, pid, bid
             addAction();
 
-            addButton(selectedDid, selectedPid, modifyButton.ToString(), selectedAid, "image1", "null");
+            addButton(selectedDid, selectedPid, modifyButton.ToString(), selectedAid, selectedImage, "null");
 
 
         }
@@ -164,10 +161,9 @@ namespace fasttool_modern
                     {
                         while (reader.Read())
                         {
-                            // Odczytujemy model, wersję i port
-                            action = reader.GetString(0); // Indeks 0 - model
-                            image = reader.GetString(1); // Indeks 1 - version
-                            color = reader.GetString(2); // Indeks 2 - port
+                            action = reader.GetString(0); 
+                            image = reader.GetString(1); 
+                            color = reader.GetString(2); 
                         }
                     }
                 }
@@ -203,8 +199,7 @@ namespace fasttool_modern
                     {
                         while (reader.Read())
                         {
-                            // Odczytujemy model, wersję i port
-                            ComboBoxProfiles.Items.Add(reader.GetString(0)); // Indeks 0 - model
+                            ComboBoxProfiles.Items.Add(reader.GetString(0)); 
                         }
                     }
                 }
@@ -227,8 +222,7 @@ namespace fasttool_modern
                     {
                         while (reader.Read())
                         {
-                            // Odczytujemy model, wersję i port
-                            pid = reader.GetString(0); // Indeks 0 - model
+                            pid = reader.GetString(0); 
                         }
                     }
                 }
@@ -266,5 +260,25 @@ namespace fasttool_modern
                                         .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
+        private void activebutton_Click(object sender, RoutedEventArgs e)
+        {
+            bt1.IsEnabled = true;
+            bt2.IsEnabled = true;
+            bt3.IsEnabled = true;
+            bt4.IsEnabled = true;
+            bt5.IsEnabled = true;
+            bt6.IsEnabled = true;
+            bt7.IsEnabled = true;
+            bt8.IsEnabled = true;
+            Button button = sender as Button;
+            button.IsEnabled = false;
+            modifyButton = Convert.ToInt32(button.Tag);
+            activeText.Text = $"Button {button.Tag}";
+        }
+
+        private void image_Click(object sender, RoutedEventArgs e) {
+            ChooseImage newWindow = new ChooseImage();
+            newWindow.Activate();
+        }
     }
 }

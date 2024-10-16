@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="fasttool_modern.ChooseImage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:fasttool_modern"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        
+        <TabView x:Name="ItabView" IsAddTabButtonVisible="False">
+            <TabView.TabItems>
+                
+                <TabViewItem x:Name="TabStandarts"  Header="Standarts" IsClosable="False">
+                    <ScrollView HorizontalScrollBarVisibility="Auto">
+                        <Grid x:Name="sPanel">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ScrollView>
+                </TabViewItem>
+                <TabViewItem x:Name="TabApps" Header="Apps" IsClosable="False">
+                    <ScrollView HorizontalScrollBarVisibility="Auto">
+                        <Grid x:Name="aPanel">
+                            <TextBlock x:Name="outText"></TextBlock>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ScrollView>
+
+
+                </TabViewItem>
+                
+            </TabView.TabItems>
+        </TabView>
+
+
+    </Grid>
+</Window>
