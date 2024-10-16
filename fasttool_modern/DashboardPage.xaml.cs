@@ -1,24 +1,12 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage;
-using static System.Net.Mime.MediaTypeNames;
+
+
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,7 +20,7 @@ namespace fasttool_modern
         int modifyButton = 1;
 
         string selectedDid = "1";
-        string selectedPid = "";
+        string selectedPid = "KLyN";
         string selectedBid = "";
         string selectedAid = "";
         string selectedImage = "image";
@@ -43,6 +31,7 @@ namespace fasttool_modern
         {
             this.InitializeComponent();
             loadProfiles();
+            loadButtons();
 
             try
             {
@@ -89,25 +78,105 @@ namespace fasttool_modern
             }
         }
 
-        static string viewDevices(SqliteConnection connection)
+        private void loadButtons() 
         {
-            connection.Open();
-            string selectQuery = "SELECT model, version, port FROM devices;";
-            string view = "";
-            using (var command = new SqliteCommand(selectQuery, connection))
+            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                output.Text += selectedDid;
+                output.Text += selectedPid;
+                connection.Open();
+                string selectQuery = "SELECT bid, image FROM buttons WHERE did = @did AND pid = @pid;";
+                using (var command = new SqliteCommand(selectQuery, connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@did", selectedDid);
+                    command.Parameters.AddWithValue("@pid", selectedPid);
+                    
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        view += $"Model: {reader.GetString(0)}\n"; 
-                        view += $"Wersja: {reader.GetDouble(1)}\n"; 
-                        view += $"Port: {reader.GetString(2)}\n"; 
+                        while (reader.Read())
+                        {
+                            output.Text += reader.GetString(0);
+                            output.Text += reader.GetString(1);
+                            var choosebt = int.Parse(reader.GetString(0)); 
+                            string image = reader.GetString(1);
+                            BitmapImage bitmap = new BitmapImage(new Uri($"C:/{image}.png"));
+                            Microsoft.UI.Xaml.Controls.Image image1 = new Microsoft.UI.Xaml.Controls.Image();
+                            switch (choosebt)
+                            {
+                                case 1:
+                                    image1.Source = bitmap;
+                                    bt1.Content = image1;
+                                    break;
+                                case 2:
+                                    image1.Source = bitmap;
+                                    bt2.Content = image1;
+                                    break;
+                                case 3:
+                                    image1.Source = bitmap;
+                                    bt3.Content = image1;
+                                    break;
+                                case 4:
+                                    image1.Source = bitmap;
+                                    bt3.Content = image1;
+                                    break;
+                            } 
+                        }
                     }
                 }
             }
-            return view;
+
         }
+
+        private void loadButton() 
+        {
+            string aid = "";
+            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            {
+                
+                connection.Open();
+                string selectQuery = "SELECT aid FROM buttons WHERE did = @did AND pid = @pid AND bid = @bid;";
+                using (var command = new SqliteCommand(selectQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@did", selectedDid);
+                    command.Parameters.AddWithValue("@pid", selectedPid);
+                    command.Parameters.AddWithValue("@bid", modifyButton);
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            aid = reader.GetString(0);
+                        }
+                    }
+                }
+            }
+            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            {
+                
+                connection.Open();
+                string selectQuery = "SELECT type, doaction FROM actions WHERE aid = @aid;";
+                using (var command = new SqliteCommand(selectQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@aid", aid);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            foreach (ComboBoxItem item in ComboBoxType.Items)
+                            {
+                                if (item.Content.ToString() == reader.GetString(0))
+                                {
+                                    ComboBoxType.SelectedItem = item;
+                                    break;
+                                }
+                            }
+                            TextAction.Text = reader.GetString(1);
+                        }
+                    }
+                }
+            }
+        }
+
         private void SaveButton(object sender, RoutedEventArgs e)
         {
             getProfileID();
@@ -264,6 +333,7 @@ namespace fasttool_modern
 
         private void activebutton_Click(object sender, RoutedEventArgs e)
         {
+            loadButton();
             bt1.IsEnabled = true;
             bt2.IsEnabled = true;
             bt3.IsEnabled = true;
