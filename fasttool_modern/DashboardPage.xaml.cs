@@ -5,7 +5,9 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Xaml.Shapes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -279,6 +281,48 @@ namespace fasttool_modern
         private void image_Click(object sender, RoutedEventArgs e) {
             ChooseImage newWindow = new ChooseImage();
             newWindow.Activate();
+            newWindow.Closed += NewWindow_Closed;
+
+        }
+
+        private void NewWindow_Closed(object sender, WindowEventArgs e)
+        {
+            ChooseImage chooseImage = sender as ChooseImage;
+
+            if (chooseImage != null)
+            {
+                selectedImage = chooseImage.SelectedImagePath;
+                BitmapImage bitmap = new BitmapImage(new Uri($"C:/{selectedImage}.png"));
+                Microsoft.UI.Xaml.Controls.Image image = new Microsoft.UI.Xaml.Controls.Image();
+                image.Source = bitmap;
+                switch (modifyButton)
+                {
+                    case 1:
+                        bt1.Content = image;
+                        break;
+                    case 2:
+                        bt2.Content = image;
+                        break;
+                    case 3:
+                        bt3.Content = image;
+                        break;
+                    case 4:
+                        bt4.Content = image;
+                        break;
+                    case 5:
+                        bt5.Content = image;
+                        break;
+                    case 6:
+                        bt6.Content = image;
+                        break;
+                    case 7:
+                        bt7.Content = image;
+                        break;
+                    case 8:
+                        bt8.Content = image;
+                        break;
+                }
+            }
         }
     }
 }

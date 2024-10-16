@@ -6,14 +6,15 @@
     xmlns:local="using:fasttool_modern"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    >
 
     <Grid>
         
         <TabView x:Name="ItabView" IsAddTabButtonVisible="False">
             <TabView.TabItems>
-                
-                <TabViewItem x:Name="TabStandarts"  Header="Standarts" IsClosable="False">
+
+                <TabViewItem x:Name="TabStandarts" Tag="images/standarts/" Header="Standarts" IsClosable="False">
                     <ScrollView HorizontalScrollBarVisibility="Auto">
                         <Grid x:Name="sPanel">
                             <Grid.ColumnDefinitions>
@@ -27,7 +28,7 @@
                         </Grid>
                     </ScrollView>
                 </TabViewItem>
-                <TabViewItem x:Name="TabApps" Header="Apps" IsClosable="False">
+                <TabViewItem x:Name="TabApps" Tag ="images/apps/" Header="Apps" IsClosable="False">
                     <ScrollView HorizontalScrollBarVisibility="Auto">
                         <Grid x:Name="aPanel">
                             <TextBlock x:Name="outText"></TextBlock>

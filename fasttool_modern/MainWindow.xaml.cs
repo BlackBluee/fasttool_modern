@@ -61,6 +61,7 @@ namespace fasttool_modern
         private CoreAudioDevice defaultPlaybackDevice;
         private System.Timers.Timer deviceCheckTimer;
         private System.Timers.Timer windowCheckTimer;
+        public string selectedImage = "";
 
         Connection connection = Connection.Instance;
         public MainWindow()

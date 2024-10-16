@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -21,6 +22,7 @@ namespace fasttool_modern
 {
     public sealed partial class ChooseImage : Window
     {
+        public string SelectedImagePath { get; private set; }
         List<string> buttonListapp = new List<string>();
         List<string> buttonListstandart = new List<string>();
         public ChooseImage()
@@ -99,7 +101,18 @@ namespace fasttool_modern
         }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            var ipath = "";
+            var selectedTab = ItabView.SelectedItem as TabViewItem;
+            if (selectedTab != null)
+            {
+                ipath = selectedTab.Tag.ToString();
+            }
+            
             Button button = sender as Button;
+            var ifile = button.Tag.ToString();
+
+            SelectedImagePath = ipath + ifile;
+            this.Close();
 
         }
     }
