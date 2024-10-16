@@ -295,6 +295,7 @@ namespace fasttool_modern
                 BitmapImage bitmap = new BitmapImage(new Uri($"C:/{selectedImage}.png"));
                 Microsoft.UI.Xaml.Controls.Image image = new Microsoft.UI.Xaml.Controls.Image();
                 image.Source = bitmap;
+                imgButton.Tag = selectedImage;
                 switch (modifyButton)
                 {
                     case 1:
