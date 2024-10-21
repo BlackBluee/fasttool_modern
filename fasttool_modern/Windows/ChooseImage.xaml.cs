@@ -74,7 +74,8 @@ namespace fasttool_modern
                 btn.Margin = new Thickness(15);
                 try
                 {
-                    BitmapImage bitmap = new BitmapImage(new Uri($"C:/{path}{imageName}.png"));
+                    BitmapImage bitmap = new BitmapImage(new Uri($"ms-appx:///Assets/{path}{imageName}.png"));
+                    btn.Content = $"{path}{imageName}";
                     image.Source = bitmap;
                     btn.Content = image;
                 }

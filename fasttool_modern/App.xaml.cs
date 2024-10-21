@@ -17,6 +17,9 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Microsoft.Data.Sqlite;
 using Windows.UI.Popups;
+using Microsoft.EntityFrameworkCore;
+
+using Microsoft.Extensions.DependencyInjection;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -34,76 +37,14 @@ namespace fasttool_modern
         /// </summary>
         /// 
 
-        string dbFilePath = "myDatabase.db";
+
         public App()
         {
             this.InitializeComponent();
-            try
-            {
-                // Kod do połączenia z bazą danych lub wykonania zapytań
-                if (!File.Exists(dbFilePath))
-                {
-                    // Tworzenie bazy danych
-                    using (var connection = new SqliteConnection($"Data Source={dbFilePath}"))
-                    {
-                        connection.Open();
-                        CreateDatabase(connection);
-                    }
+            
 
-                    Console.WriteLine("Baza danych została utworzona. \n");
-                }
-                else
-                {
-                    Console.WriteLine("Baza danych już istnieje. \n");
-                }
-
-            }
-            catch (SqliteException ex)
-            {
-                Console.WriteLine($"Błąd SQLite: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Błąd: {ex.Message}");
-            }
         }
-        static void CreateDatabase(SqliteConnection connection)
-        {
-            string createDevicesTable = @"
-                CREATE TABLE devices (
-                    did TEXT PRIMARY KEY,   
-                    model TEXT,           
-                    version REAL,
-                    port TEXT
-                );";
-            string createProfilesTable = @"
-                CREATE TABLE profiles (
-                    pid TEXT PRIMARY KEY,   
-                    profile TEXT           
-                );";
-            string createButtonsTable = @"
-                CREATE TABLE buttons (
-                    did TEXT,
-                    pid TEXT,
-                    bid TEXT,
-                    aid TEXT,
-                    image TEXT,           
-                    color TEXT,
-                    FOREIGN KEY (did) REFERENCES devices(did),
-                    FOREIGN KEY (pid) REFERENCES profiles(pid)
-                );";
-            string createActionsTable = @"
-                CREATE TABLE actions (
-                    aid TEXT PRIMARY KEY,   
-                    type TEXT,          
-                    doaction TEXT           
-                );";
-            using (var command = new SqliteCommand(createDevicesTable, connection)) { command.ExecuteNonQuery(); }
-            using (var command = new SqliteCommand(createProfilesTable, connection)) { command.ExecuteNonQuery(); }
-            using (var command = new SqliteCommand(createButtonsTable, connection)) { command.ExecuteNonQuery(); }
-            using (var command = new SqliteCommand(createActionsTable, connection)) { command.ExecuteNonQuery(); }
-            Console.WriteLine("Tabele zostały utworzone.");
-        }
+        
 
 
         /// <summary>
@@ -112,9 +53,12 @@ namespace fasttool_modern
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+           
             m_window = new MainWindow();
             m_window.Activate();
         }
+
+     
 
         private Window m_window;
     }

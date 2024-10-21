@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -30,6 +30,7 @@ namespace fasttool_modern
         public ProfilesPage()
         {
             this.InitializeComponent();
+            RemoveAllProfiles();
             loadProfiles();
         }
 
@@ -38,65 +39,43 @@ namespace fasttool_modern
             listProfiles.Children.Clear();
             listProfiles.RowDefinitions.Clear();
 
-            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            using (var context = new AppDbContext())
             {
-                connection.Open();
-                string selectQuery = "SELECT pid, profile FROM profiles;";
-                using (var command = new SqliteCommand(selectQuery, connection))
+                var profiles = context.Profiles.ToList();
+                foreach (var profile in profiles)
                 {
-                    using (SqliteDataReader reader = command.ExecuteReader())
+                    RowDefinition row = new RowDefinition();
+                    listProfiles.RowDefinitions.Add(row);
+
+                    TextBlock textBlock = new TextBlock();
+                    textBlock.Text = profile.ProfileName;
+                    Grid.SetColumn(textBlock, 0);
+                    Grid.SetRow(textBlock, listProfiles.RowDefinitions.Count - 1); 
+
+                    Button button = new Button();
+                    button.Content = "Remove";
+                    button.Click += RemoveRowButton_Click;
+                    button.Tag = profile.ProfileID;
+                    if (profile.ProfileID == "HOME")
                     {
-                        while (reader.Read())
-                        {
-                            RowDefinition row = new RowDefinition();
-                            listProfiles.RowDefinitions.Add(row);
-                            
-
-
-                            TextBlock textBlock = new TextBlock();
-                            textBlock.Text = reader.GetString(1);
-                            
-                            Button button = new Button();
-                            button.Content = "Remove";
-                            button.Click += RemoveRowButton_Click;
-                            button.Tag = reader.GetString(0);
-                            if (reader.GetString(0) == "HHH1")
-                            {
-                                button.IsEnabled = false;
-                            }
-
-                            Grid.SetColumn(textBlock, 0);
-                            Grid.SetRow(textBlock, listProfiles.RowDefinitions.Count - 1); // Ustawienie wiersza na ostatni dodany wiersz
-
-
-                            Grid.SetColumn(button, 1);
-                            Grid.SetRow(button, listProfiles.RowDefinitions.Count - 1);
-
-                            listProfiles.Children.Add(textBlock);
-                            listProfiles.Children.Add(button);
-                        }
+                        button.IsEnabled = false;
                     }
+                    Grid.SetColumn(button, 1);
+                    Grid.SetRow(button, listProfiles.RowDefinitions.Count - 1);
+                    listProfiles.Children.Add(textBlock);
+                    listProfiles.Children.Add(button);
                 }
-            }
+            }  
         }
 
         private void addProfile(object sender, RoutedEventArgs e)
         {
-            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
-            {
-                connection.Open();
-                
+            using (var context = new AppDbContext()) { 
+                context.Database.EnsureCreated();
                 string pid = GenerateRandomString(4);
                 string profile = ComboBoxProfiles.SelectedItem as string;
-                string insertQuery = "INSERT INTO profiles (pid, profile) VALUES (@pid, @profile);";
-
-                using (var command = new SqliteCommand(insertQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@pid", pid);
-                    command.Parameters.AddWithValue("@profile", profile);
-
-                    command.ExecuteNonQuery();
-                }
+                context.Profiles.Add(new Profile { ProfileID = pid, ProfileName = profile });
+                context.SaveChanges();
             }
             loadProfiles();
         }
@@ -104,27 +83,38 @@ namespace fasttool_modern
         {
             Button button = sender as Button;
             removeprofile(button.Tag.ToString());
+            
             loadProfiles();
         }
         private void removeprofile(string pid)
         {
-                using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            using (var context = new AppDbContext())
+            {
+                var profileToDelete = context.Profiles.SingleOrDefault(a => a.ProfileID == pid);
+
+                if (profileToDelete != null)
                 {
-                    connection.Open();
-
-                    
-                    string profile = ComboBoxProfiles.SelectedItem as string;
-                    string removeQuery = "DELETE FROM profiles WHERE pid = @pid";
-
-                    using (var command = new SqliteCommand(removeQuery, connection))
-                    {
-                        command.Parameters.AddWithValue("@pid", pid);
-                        
-
-                        command.ExecuteNonQuery();
-                    }
-
+                    context.Profiles.Remove(profileToDelete);
+                    context.SaveChanges();
                 }
+            }
+        }
+
+        private void RemoveAllProfiles()
+        {
+            using (var context = new AppDbContext())
+            {
+                context.Database.EnsureCreated();
+                var profiles = context.Profiles.ToList();
+                foreach (var profile in profiles)
+                {
+                    if (profile.ProfileID != "HOME")
+                    {
+                        context.Profiles.Remove(profile);
+                    }
+                }
+            }
+            loadProfiles();
         }
 
         private static string GenerateRandomString(int length)
@@ -134,6 +124,5 @@ namespace fasttool_modern
             return new string(Enumerable.Repeat(chars, length)
                                         .Select(s => s[random.Next(s.Length)]).ToArray());
         }
-
     }
 }

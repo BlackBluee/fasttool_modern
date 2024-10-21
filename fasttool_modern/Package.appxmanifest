@@ -8,7 +8,7 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="bf3de1fd-c129-47a6-9a79-f2c72e355dd6"
+    Name="fasttool"
     Publisher="CN=Kacper"
     Version="1.0.0.0" />
 

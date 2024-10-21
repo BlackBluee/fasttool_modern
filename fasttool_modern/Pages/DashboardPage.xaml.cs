@@ -1,326 +1,96 @@
-﻿using Microsoft.Data.Sqlite;
+﻿
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
+using System.IO;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Devices.Sms;
+using static System.Net.Mime.MediaTypeNames;
 
 
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+
 
 namespace fasttool_modern
 {
-    //C:\Users\Kacper\AppData\Local\Packages\bf3de1fd-c129-47a6-9a79-f2c72e355dd6_a0tqctefsy7vm\LocalState
+
     public sealed partial class DashboardPage : Page
     {
-        string dbFilePath = "myDatabase.db";
         int modifyButton = 1;
 
         string selectedDid = "1";
-        string selectedPid = "KLyN";
+        string selectedPid = "HOME";
         string selectedBid = "";
         string selectedAid = "";
         string selectedImage = "image";
 
-
-
         public DashboardPage()
         {
             this.InitializeComponent();
-            loadProfiles();
-            loadButtons();
-
-            try
-            {
-                /*
-                InsertDevice("1", "model1", 1.0, "port1");
-                var localFolder = ApplicationData.Current.LocalFolder;
-                var wdbFilePath = Path.Combine(localFolder.Path, "myDatabase.db");
-
-                output.Text += $"Lokalizacja pliku bazy danych: {wdbFilePath}\n";
-                output.Text += viewDevices(new SqliteConnection($"Data Source={dbFilePath}\n"));*/
-            }
-            catch (SqliteException ex)
-            {
-                Console.WriteLine($"Błąd SQLite: {ex.Message}\n");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Błąd: {ex.Message}\n");
-            }
+            //poczatkowe dane bazy danych
+            InsertDevice("1", "Model1", 1.0f, "COM1");
+            InsertProfile("HOME", "Home");
+            LoadProfiles();
+            LoadPanel();
+            //getDecive();
+            //LoadButton();
             ComboBoxProfiles.SelectedIndex = 0;
             bt1.IsEnabled = false;
             modifyButton = 1;
-        }
-
-
-
-        public void InsertDevice(string did, string model, double version, string port)
-        {
-            using (var connection = new SqliteConnection($"Data Source={dbFilePath}"))
-            {
-                connection.Open();
-
-                string insertQuery = "INSERT INTO devices (did, model, version, port) VALUES (@did, @model, @version, @port);";
-
-                using (var command = new SqliteCommand(insertQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@did", did);
-                    command.Parameters.AddWithValue("@model", model);
-                    command.Parameters.AddWithValue("@version", version);
-                    command.Parameters.AddWithValue("@port", port);
-
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private void loadButtons() 
-        {
-            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
-            {
-                output.Text += selectedDid;
-                output.Text += selectedPid;
-                connection.Open();
-                string selectQuery = "SELECT bid, image FROM buttons WHERE did = @did AND pid = @pid;";
-                using (var command = new SqliteCommand(selectQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@did", selectedDid);
-                    command.Parameters.AddWithValue("@pid", selectedPid);
-                    
-                    using (SqliteDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            output.Text += reader.GetString(0);
-                            output.Text += reader.GetString(1);
-                            var choosebt = int.Parse(reader.GetString(0)); 
-                            string image = reader.GetString(1);
-                            BitmapImage bitmap = new BitmapImage(new Uri($"C:/{image}.png"));
-                            Microsoft.UI.Xaml.Controls.Image image1 = new Microsoft.UI.Xaml.Controls.Image();
-                            switch (choosebt)
-                            {
-                                case 1:
-                                    image1.Source = bitmap;
-                                    bt1.Content = image1;
-                                    break;
-                                case 2:
-                                    image1.Source = bitmap;
-                                    bt2.Content = image1;
-                                    break;
-                                case 3:
-                                    image1.Source = bitmap;
-                                    bt3.Content = image1;
-                                    break;
-                                case 4:
-                                    image1.Source = bitmap;
-                                    bt3.Content = image1;
-                                    break;
-                            } 
-                        }
-                    }
-                }
-            }
 
         }
 
-        private void loadButton() 
+        public void InsertDevice(string did, string model, float version, string port)
         {
-            string aid = "";
-            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            try
             {
-                
-                connection.Open();
-                string selectQuery = "SELECT aid FROM buttons WHERE did = @did AND pid = @pid AND bid = @bid;";
-                using (var command = new SqliteCommand(selectQuery, connection))
+                using (var context = new AppDbContext())
                 {
-                    command.Parameters.AddWithValue("@did", selectedDid);
-                    command.Parameters.AddWithValue("@pid", selectedPid);
-                    command.Parameters.AddWithValue("@bid", modifyButton);
-                    using (SqliteDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            aid = reader.GetString(0);
-                        }
-                    }
+                    context.Database.EnsureCreated();
+                    context.Devices.Add(new Device { DeviceID = did, Model = model, Version = version, Port = port });
+                    context.SaveChanges();
                 }
             }
-            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            catch (Exception e)
             {
-                
-                connection.Open();
-                string selectQuery = "SELECT type, doaction FROM actions WHERE aid = @aid;";
-                using (var command = new SqliteCommand(selectQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@aid", aid);
-
-                    using (SqliteDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            foreach (ComboBoxItem item in ComboBoxType.Items)
-                            {
-                                if (item.Content.ToString() == reader.GetString(0))
-                                {
-                                    ComboBoxType.SelectedItem = item;
-                                    break;
-                                }
-                            }
-                            TextAction.Text = reader.GetString(1);
-                        }
-                    }
-                }
+                output.Text = e.Message;
             }
         }
 
-        private void SaveButton(object sender, RoutedEventArgs e)
+        public void InsertProfile(string pid, string pname)
         {
-            getProfileID();
-            var selectedItem1 = ComboBoxType.SelectedItem as ComboBoxItem;
-            string comboBoxValue = selectedItem1?.Content.ToString() ?? "Nie wybrano opcji";
-
-            output.Text = $"Profil ID: {selectedPid}, Przycisk:{modifyButton} , Typ: {comboBoxValue}, akcja: {TextAction.Text}";
-
-            addAction();
-
-            addButton(selectedDid, selectedPid, modifyButton.ToString(), selectedAid, selectedImage, "null");
-
-
-        }
-
-        //device , profile, button, action
-        private void addButton(string did, string pid, string bid, string aid, string image, string color)
-        {
-            using (var connection = new SqliteConnection($"Data Source={dbFilePath}"))
+            try
             {
-                connection.Open();
-                string insertQuery = "INSERT INTO buttons (did, pid, bid, aid, image, color) VALUES (@did, @pid, @bid, @aid, @image, @color);";
-                using (var command = new SqliteCommand(insertQuery, connection))
+                using (var context = new AppDbContext())
                 {
-                    command.Parameters.AddWithValue("@did", did);
-                    command.Parameters.AddWithValue("@pid", pid);
-                    command.Parameters.AddWithValue("@bid", bid);
-                    command.Parameters.AddWithValue("@aid", aid);
-                    command.Parameters.AddWithValue("@image", image);
-                    command.Parameters.AddWithValue("@color", color);
-
-                    command.ExecuteNonQuery();
+                    context.Database.EnsureCreated();
+                    context.Profiles.Add(new Profile { ProfileID = pid, ProfileName = pname });
+                    context.SaveChanges();
                 }
             }
-        }
-
-        static string getButton(string did, string pid, string bid, string option)
-        {
-            string voption = option;
-            string action = "";
-            string image = "";
-            string color = "";
-            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
+            catch (Exception e)
             {
-                connection.Open();
-                string selectQuery = "SELECT aid, image, color FROM buttons WHERE did = @did AND pid = @pid AND bid = @bid;";
-                using (var command = new SqliteCommand(selectQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@did", did);
-                    command.Parameters.AddWithValue("@pid", pid);
-                    command.Parameters.AddWithValue("@bid", bid);
-                    using (SqliteDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            action = reader.GetString(0); 
-                            image = reader.GetString(1); 
-                            color = reader.GetString(2); 
-                        }
-                    }
-                }
+                output.Text = e.Message;
             }
-            if (voption == "action")
-            {
-                return action;
-            }
-            else if (voption == "image")
-            {
-                return image;
-            }
-            else if (voption == "color")
-            {
-                return color;
-            }
-            else
-            {
-                return "error";
-            }
-
-        }
-
-        private void loadProfiles()
-        {
-            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
-            {
-                connection.Open();
-                string selectQuery = "SELECT profile FROM profiles;";
-                using (var command = new SqliteCommand(selectQuery, connection))
-                {
-                    using (SqliteDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            ComboBoxProfiles.Items.Add(reader.GetString(0)); 
-                        }
-                    }
-                }
-            }
-        }
-
-        private void getProfileID()
-        {
-
-            string profile = ComboBoxProfiles.SelectedItem as string;
-            string pid = "";
-            using (var connection = new SqliteConnection($"Data Source=myDatabase.db"))
-            {
-                connection.Open();
-                string selectQuery = "SELECT pid FROM profiles WHERE profile = @profile;";
-                using (var command = new SqliteCommand(selectQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@profile", profile);
-                    using (SqliteDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            pid = reader.GetString(0); 
-                        }
-                    }
-                }
-            }
-            selectedPid = pid;
 
         }
 
         private void addAction()
         {
-            using (var connection = new SqliteConnection($"Data Source={dbFilePath}"))
+
+            var selectedItem = ComboBoxType.SelectedItem as ComboBoxItem;
+            string comboBoxValue = selectedItem?.Content.ToString() ?? "None";
+            selectedAid = GenerateRandomString(4);
+            using (var context = new AppDbContext())
             {
-                connection.Open();
-                var selectedItem = ComboBoxType.SelectedItem as ComboBoxItem;
-                //selectedItem.ToString();
-                string comboBoxValue = selectedItem?.Content.ToString() ?? "None";
-                selectedAid = GenerateRandomString(4);
-                string insertQuery = "INSERT INTO actions (aid, type, doaction) VALUES (@aid, @type, @doaction);";
-                using (var command = new SqliteCommand(insertQuery, connection))
-                {
-                    command.Parameters.AddWithValue("@aid", selectedAid);
-                    command.Parameters.AddWithValue("@type", comboBoxValue);
-                    command.Parameters.AddWithValue("@doaction", TextAction.Text);
-
-
-                    command.ExecuteNonQuery();
-                }
+                context.Database.EnsureCreated();
+                context.Actions.Add(new Action { ActionID = selectedAid, Type = comboBoxValue, DoAction = TextAction.Text });
+                context.SaveChanges();
             }
         }
         private static string GenerateRandomString(int length)
@@ -331,9 +101,158 @@ namespace fasttool_modern
                                         .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
+        //device , profile, button, action
+        private void addButton(string did, string pid, string bid, string aid, string image, string color)
+        {
+            using (var context = new AppDbContext())
+            {
+                var buttonData = context.ButtonDatas.SingleOrDefault(b => b.ButtonID == bid && b.ProfileID == pid);
+                if (buttonData != null)
+                {
+                    buttonData.ActionID = aid;
+                    buttonData.Image = image;
+                    buttonData.Color = color;
+                }
+                else
+                    context.ButtonDatas.Add(new ButtonData { DeviceID = did, ProfileID = pid, ButtonID = bid, ActionID = aid, Image = image, Color = color });
+                context.SaveChanges();
+            }
+        }
+
+        public void getDecive()
+        {
+            using (var context = new AppDbContext())
+            {
+                var devices = context.Devices.ToList();
+                foreach (var device in devices)
+                {
+                    output.Text = $"Device ID: {device.DeviceID}, Model: {device.Model}, Version: {device.Version}, Port: {device.Port}";
+                }
+            }
+        }
+
+        private void getProfileID()
+        {
+            string choseenProfile = ComboBoxProfiles.SelectedItem as string;
+            using (var context = new AppDbContext())
+            {
+                var profile = context.Profiles.Where(p => p.ProfileName == choseenProfile).SingleOrDefault();
+                selectedPid = profile.ProfileID;
+            }
+        }
+
+        private void LoadProfiles()
+        {
+            using (var context = new AppDbContext())
+            {
+                var Profiles = context.Profiles.ToList();
+                foreach (var profile in Profiles)
+                {
+                    ComboBoxProfiles.Items.Add(profile.ProfileName);
+                }
+            }
+        }
+        private void LoadPanel() 
+        {
+            using (var context = new AppDbContext())
+            {
+                context.Database.EnsureCreated();
+                var buttons = context.ButtonDatas.Where(b => b.DeviceID == selectedDid && b.ProfileID == selectedPid).ToList();
+                
+                foreach (var button in buttons)
+                {
+                    BitmapImage bitmap = new BitmapImage(new Uri($"ms-appx:///Assets/{button.Image}.png"));
+                    Microsoft.UI.Xaml.Controls.Image image1 = new Microsoft.UI.Xaml.Controls.Image();
+                    switch (button.ButtonID)
+                    {
+                        case "1":
+                            image1.Source = bitmap;
+                            bt1.Content = image1;
+                            break;
+                        case "2":
+                            image1.Source = bitmap;
+                            bt2.Content = image1;
+                            break;
+                        case "3":
+                            image1.Source = bitmap;
+                            bt3.Content = image1;
+                            break;
+                        case "4":
+                            image1.Source = bitmap;
+                            bt4.Content = image1;
+                            break;
+                        case "5":
+                            image1.Source = bitmap;
+                            bt5.Content = image1;
+                            break;
+                        case "6":
+                            image1.Source = bitmap;
+                            bt6.Content = image1;
+                            break;
+                        case "7":
+                            image1.Source = bitmap;
+                            bt7.Content = image1;
+                            break;
+                        case "8":
+                            image1.Source = bitmap;
+                            bt8.Content = image1;
+                            break;
+                    }
+
+                }
+            }
+
+        }
+
+        private void LoadButton() 
+        {
+            string aid;
+            try
+            {
+                using (var context = new AppDbContext())
+                {
+                    context.Database.EnsureCreated();
+                    var button = context.ButtonDatas.Where(b => b.ButtonID == modifyButton.ToString() && b.DeviceID == selectedDid && b.ProfileID == selectedPid).SingleOrDefault();
+
+                    if (button != null)
+                    {
+                        output.Text = $"Device ID: {button.DeviceID}, Profile ID: {button.ProfileID}, Button ID: {button.ButtonID}, Action ID: {button.ActionID}, Image: {button.Image}, Color: {button.Color}";
+
+                        selectedImage = button.Image;
+                        var action = context.Actions.Where(a => a.ActionID == button.ActionID).SingleOrDefault();
+                        TextAction.Text = action.DoAction;
+                        foreach (ComboBoxItem item in ComboBoxType.Items)
+                        {
+                            if (item.Content.ToString() == action.Type)
+                            {
+                                ComboBoxType.SelectedItem = item;
+                                break;
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                output.Text = e.Message;
+            }
+        }
+
+        private void SaveButton(object sender, RoutedEventArgs e)
+        {
+            getProfileID();
+            var selectedItem1 = ComboBoxType.SelectedItem as ComboBoxItem;
+            string comboBoxValue = selectedItem1?.Content.ToString() ?? "Nie wybrano opcji";
+            addAction();
+            output.Text = $"Profil ID: {selectedPid}, Przycisk:{modifyButton} , Typ: {comboBoxValue}, akcja: {TextAction.Text}, aid: {selectedAid}";
+            addButton(selectedDid, selectedPid, modifyButton.ToString(), selectedAid, selectedImage, "null");
+        }
+      
         private void activebutton_Click(object sender, RoutedEventArgs e)
         {
-            loadButton();
+            getProfileID();
+            LoadButton();
             bt1.IsEnabled = true;
             bt2.IsEnabled = true;
             bt3.IsEnabled = true;
@@ -362,7 +281,7 @@ namespace fasttool_modern
             if (chooseImage != null)
             {
                 selectedImage = chooseImage.SelectedImagePath;
-                BitmapImage bitmap = new BitmapImage(new Uri($"C:/{selectedImage}.png"));
+                BitmapImage bitmap = new BitmapImage(new Uri($"ms-appx:///Assets/{selectedImage}.png"));
                 Microsoft.UI.Xaml.Controls.Image image = new Microsoft.UI.Xaml.Controls.Image();
                 image.Source = bitmap;
                 imgButton.Tag = selectedImage;
