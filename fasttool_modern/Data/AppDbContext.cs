@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 
 public class AppDbContext : DbContext
@@ -20,8 +12,8 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-
-        string dbPath = Path.Combine("C:\\Users\\Kacper\\Desktop\\TestDB", "a1.db");
+        var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+        string dbPath = System.IO.Path.Combine(localFolder.Path, "a1.db");
         optionsBuilder.UseSqlite($"Data Source={dbPath}");
 
 
@@ -30,13 +22,12 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Action>()
-        .HasOne(a => a.ButtonData)          // Jedna akcja ma jeden ButtonData
-        .WithMany(b => b.Actions)           // Jeden ButtonData może mieć wiele akcji
-        .HasForeignKey(a => new { a.ButtonID, a.ProfileID });  // Klucz obcy składający się z ButtonID i ProfileID
+        .HasOne(a => a.ButtonData)        
+        .WithMany(b => b.Actions)         
+        .HasForeignKey(a => new { a.ButtonID, a.ProfileID }); 
 
-        // Pozostałe konfiguracje
         modelBuilder.Entity<ButtonData>()
-            .HasKey(b => new { b.ButtonID, b.ProfileID });  // Złożony klucz dla ButtonData
+            .HasKey(b => new { b.ButtonID, b.ProfileID });  
 
         modelBuilder.Entity<Device>()
             .HasKey(d => d.DeviceID);

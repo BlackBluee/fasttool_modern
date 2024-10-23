@@ -1,60 +1,34 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
-using Windows.Foundation;
 using System.Timers;
-
-using Windows.Foundation.Collections;
 using System.Threading;
 using AudioSwitcher.AudioApi.CoreAudio;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using fasttool_modern.Shared;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+
 
 namespace fasttool_modern
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainWindow : Window
     {
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("user32.dll")]
-        private static extern int GetWindowTextLength(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        private static extern bool GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        
 
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
 
-        private string previousProcessName = "";
+        
         //private ContextMenuStrip trayMenu; //menu kontekstowe
 
         // Inicjalizacja kontrolera audio
-
-
         private const int APPCOMMAND_MEDIA_NEXTTRACK = 11;
         private const int APPCOMMAND_MEDIA_PREVIOUSTRACK = 12;
         private const int APPCOMMAND_MEDIA_PLAY_PAUSE = 14;
@@ -63,7 +37,7 @@ namespace fasttool_modern
         private CoreAudioController audioController;
         private CoreAudioDevice defaultPlaybackDevice;
         private System.Timers.Timer deviceCheckTimer;
-        private System.Timers.Timer windowCheckTimer;
+        
         public string selectedImage = "";
 
         Connection connection = Connection.Instance;
@@ -85,8 +59,7 @@ namespace fasttool_modern
             deviceCheckTimer.Elapsed += OnDeviceCheckTimerElapsed;
             deviceCheckTimer.Start();
             // Inicjalizacja timera - jeśli pracujesz w aplikacji Windows Forms i potrzebujesz okresowo aktualizować UI.
-            //windowCheckTimer.Tick += new EventHandler(CheckActiveWindow);
-            //windowCheckTimer.Start();
+            
 
         }
 
@@ -123,40 +96,7 @@ namespace fasttool_modern
             myButton.Content = "Clicked";
         }*/
 
-        private void CheckActiveWindow(object sender, EventArgs e)
-        {
-            // Pobranie uchwytu aktywnego okna
-            IntPtr handle = GetForegroundWindow();
-
-            // Pobranie ID procesu związanego z aktywnym oknem
-            GetWindowThreadProcessId(handle, out uint processId);
-
-            try
-            {
-                // Pobranie nazwy procesu
-                Process process = Process.GetProcessById((int)processId);
-                string currentProcessName = process.ProcessName;
-
-                // Aktualizacja etykiety, jeśli nazwa procesu się zmieniła
-                if (currentProcessName != previousProcessName)
-                {
-                    
-
-                    previousProcessName = currentProcessName;
-                    
-
-                    //Type:AcitveApp,Name: chrome
-                    connection.comSend("Type:ActiveApp,Name:" + currentProcessName);
-
-                }
-            }
-            catch (ArgumentException)
-            {
-                // Proces mógł zostać zakończony, zresetuj nazwę procesu
-                previousProcessName = "";
-                
-            }
-        }
+        
 
         //Sprawdzanie połączenia z urządzeniem
         private void StartConnectionChecker()

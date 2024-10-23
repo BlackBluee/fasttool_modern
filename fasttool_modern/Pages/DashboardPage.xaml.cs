@@ -1,24 +1,13 @@
-﻿
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
-using System.IO;
 using System.Linq;
-using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Devices.Sms;
-using static System.Net.Mime.MediaTypeNames;
-
-
-
 
 
 namespace fasttool_modern
 {
-
     public sealed partial class DashboardPage : Page
     {
         int modifyButton = 1;
@@ -28,6 +17,7 @@ namespace fasttool_modern
         string selectedBid = "";
         string selectedAid = "";
         string selectedImage = "image";
+        
 
         public DashboardPage()
         {
@@ -42,6 +32,7 @@ namespace fasttool_modern
             ComboBoxProfiles.SelectedIndex = 0;
             bt1.IsEnabled = false;
             modifyButton = 1;
+          
 
         }
 

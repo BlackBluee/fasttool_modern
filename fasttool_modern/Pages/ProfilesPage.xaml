@@ -24,7 +24,6 @@
         <Grid ColumnSpacing="10" ColumnDefinitions=" *, Auto" RowDefinitions="Auto, Auto"  Margin="0,200,0,0">
             <TextBlock Text="Add screen profile" FontSize="18" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10"></TextBlock>
             <ComboBox x:Name="ComboBoxProfiles" Grid.Column="0" Grid.Row="1" Width="200">
-                <x:String>chrome</x:String>
             </ComboBox>
             <Button Grid.Column="1" Grid.Row="1" Click="addProfile">
                 <FontIcon Glyph="&#xE710;" />

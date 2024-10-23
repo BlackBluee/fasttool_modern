@@ -1,40 +1,39 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Microsoft.Data.Sqlite;
-using System.Reflection;
-using System.Windows.Input;
-using static System.Net.Mime.MediaTypeNames;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace fasttool_modern
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class ProfilesPage : Page
     {
         public ProfilesPage()
         {
             this.InitializeComponent();
+            NewProfiles();
             RemoveAllProfiles();
-            loadProfiles();
+            LoadProfiles();
         }
 
-        private void loadProfiles()
+        private void NewProfiles()
+        {
+            var app = Application.Current as App;
+            if (app != null)
+            {
+                foreach (var item in app.availableApps)
+                {
+                    if (item != null && !ComboBoxProfiles.Items.Contains(item))
+                    {
+                        ComboBoxProfiles.Items.Add(item);
+                    }
+                }
+
+            }
+        }
+
+        private void LoadProfiles()
         {
             listProfiles.Children.Clear();
             listProfiles.RowDefinitions.Clear();
@@ -65,7 +64,8 @@ namespace fasttool_modern
                     listProfiles.Children.Add(textBlock);
                     listProfiles.Children.Add(button);
                 }
-            }  
+            }
+            
         }
 
         private void addProfile(object sender, RoutedEventArgs e)
@@ -77,16 +77,16 @@ namespace fasttool_modern
                 context.Profiles.Add(new Profile { ProfileID = pid, ProfileName = profile });
                 context.SaveChanges();
             }
-            loadProfiles();
+            LoadProfiles();
         }
         private void RemoveRowButton_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
-            removeprofile(button.Tag.ToString());
+            RemoveProfile(button.Tag.ToString());
             
-            loadProfiles();
+            LoadProfiles();
         }
-        private void removeprofile(string pid)
+        private void RemoveProfile(string pid)
         {
             using (var context = new AppDbContext())
             {
@@ -114,7 +114,7 @@ namespace fasttool_modern
                     }
                 }
             }
-            loadProfiles();
+            LoadProfiles();
         }
 
         private static string GenerateRandomString(int length)

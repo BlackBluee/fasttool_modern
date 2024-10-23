@@ -1,56 +1,84 @@
 ﻿using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
+using System.Diagnostics;
 using System;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Microsoft.Data.Sqlite;
-using Windows.UI.Popups;
-using Microsoft.EntityFrameworkCore;
 
-using Microsoft.Extensions.DependencyInjection;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+
+
 
 namespace fasttool_modern
 {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
     public partial class App : Application
     {
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
-        /// 
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
 
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
+        [DllImport("user32.dll")]
+        private static extern int GetWindowTextLength(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        public string previousProcessName { get; set; } = "";
+        public List<string> availableApps = new List<string>();
+
+        private System.Timers.Timer windowCheckTimer;
         public App()
         {
-            this.InitializeComponent();
             
-
+            this.InitializeComponent();
+            windowCheckTimer = new System.Timers.Timer();
+            windowCheckTimer.Interval = 1000; // Sprawdzanie co sekundę  
+            windowCheckTimer.Elapsed += new System.Timers.ElapsedEventHandler(CheckActiveWindow);
+            windowCheckTimer.Start();
         }
-        
 
 
-        /// <summary>
-        /// Invoked when the application is launched.
-        /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
+
+        private void CheckActiveWindow(object sender, EventArgs e)
+        {
+            // Pobranie uchwytu aktywnego okna
+            IntPtr handle = GetForegroundWindow();
+
+            // Pobranie ID procesu związanego z aktywnym oknem
+            GetWindowThreadProcessId(handle, out uint processId);
+
+            try
+            {
+                // Pobranie nazwy procesu
+                Process process = Process.GetProcessById((int)processId);
+                string currentProcessName = process.ProcessName;
+
+                // Aktualizacja etykiety, jeśli nazwa procesu się zmieniła
+                if (currentProcessName != previousProcessName)
+                {
+
+
+                    previousProcessName = currentProcessName;
+                    if (!availableApps.Contains(currentProcessName))
+                    {
+                        availableApps.Add(currentProcessName);
+                    }
+
+
+                    //Type:AcitveApp,Name: chrome
+                    //connection.comSend("Type:ActiveApp,Name:" + currentProcessName);
+
+                }
+            }
+            catch (ArgumentException)
+            {
+                // Proces mógł zostać zakończony, zresetuj nazwę procesu
+                previousProcessName = "";
+
+            }
+        }
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
            
