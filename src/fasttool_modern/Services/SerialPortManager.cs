@@ -6,28 +6,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace fasttool_modern.Shared
+namespace fasttool_modern.Services
 {
 
-    public class Connection
+    public class SerialPortManager
     {
-        private Connection connection;
+        private SerialPortManager connection;
         private SerialPort serialPort;
         public event Action<string> DataReceived;
         string portName = "COM7"; // Ustaw odpowiedni port COM
         int baudRate = 115200;
 
-        private static Connection instance;
+        private static SerialPortManager instance;
 
-        private Connection() { }
+        private SerialPortManager() { }
 
-        public static Connection Instance
+        public static SerialPortManager Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new Connection();
+                    instance = new SerialPortManager();
                 }
                 return instance;
             }

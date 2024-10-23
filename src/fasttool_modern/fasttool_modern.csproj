@@ -94,4 +94,8 @@
     <Folder Include="Windows\" />
     <Folder Include="Pages\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\shared\Domain\Domain.csproj" />
+    
+  </ItemGroup>
 </Project>

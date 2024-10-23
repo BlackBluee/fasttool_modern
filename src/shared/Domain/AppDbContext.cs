@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 
-
+namespace Domain;
 public class AppDbContext : DbContext
 {
     
@@ -12,11 +13,9 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-        string dbPath = System.IO.Path.Combine(localFolder.Path, "a1.db");
+        var localFolder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
+        string dbPath = System.IO.Path.Combine(localFolder, "a1.db");
         optionsBuilder.UseSqlite($"Data Source={dbPath}");
-
-
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

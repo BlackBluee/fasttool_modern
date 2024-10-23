@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-
+using Domain;
 
 namespace fasttool_modern
 {

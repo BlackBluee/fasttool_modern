@@ -8,7 +8,7 @@ using System.Threading;
 using AudioSwitcher.AudioApi.CoreAudio;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using fasttool_modern.Shared;
+using fasttool_modern.Services;
 
 
 
@@ -40,7 +40,7 @@ namespace fasttool_modern
         
         public string selectedImage = "";
 
-        Connection connection = Connection.Instance;
+        SerialPortManager connection = SerialPortManager.Instance;
         public MainWindow()
         {
             this.InitializeComponent();
