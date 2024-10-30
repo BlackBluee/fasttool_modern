@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Domain;
+using fasttool_modern.Helpers;
 
 namespace fasttool_modern
 {
@@ -14,8 +15,8 @@ namespace fasttool_modern
 
         string selectedDid = "1";
         string selectedPid = "HOME";
-        string selectedBid = "";
-        string selectedAid = "";
+        string selectedBid = string.Empty;
+        string selectedAid = string.Empty;
         string selectedImage = "image";
         
 
@@ -76,7 +77,7 @@ namespace fasttool_modern
 
             var selectedItem = ComboBoxType.SelectedItem as ComboBoxItem;
             string comboBoxValue = selectedItem?.Content.ToString() ?? "None";
-            selectedAid = GenerateRandomString(4);
+            selectedAid = StringGenerator.GenerateRandomString(4);
             using (var context = new AppDbContext())
             {
                 context.Database.EnsureCreated();
@@ -84,13 +85,7 @@ namespace fasttool_modern
                 context.SaveChanges();
             }
         }
-        private static string GenerateRandomString(int length)
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            Random random = new Random();
-            return new string(Enumerable.Repeat(chars, length)
-                                        .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
+        
 
         //device , profile, button, action
         private void addButton(string did, string pid, string bid, string aid, string image, string color)
@@ -154,6 +149,7 @@ namespace fasttool_modern
                 {
                     BitmapImage bitmap = new BitmapImage(new Uri($"ms-appx:///Assets/{button.Image}.png"));
                     Microsoft.UI.Xaml.Controls.Image image1 = new Microsoft.UI.Xaml.Controls.Image();
+                    //wzorzec factory
                     switch (button.ButtonID)
                     {
                         case "1":

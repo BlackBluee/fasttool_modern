@@ -1,6 +1,7 @@
 using fasttool_modern.Services;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
 
 namespace fasttool_modern
 {
@@ -34,6 +35,19 @@ namespace fasttool_modern
             {
                 connectionButton.Content = "Connect";
             }
+        }
+
+        private void connect_Click(object sender, RoutedEventArgs e)
+        {
+            if (serialPortManager.askConnection())
+            {
+                serialPortManager.disconnect();
+            }
+            else
+            {
+                serialPortManager.connectDevice();
+            }
+            LoadButton();
         }
     }
 }

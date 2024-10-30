@@ -15,6 +15,7 @@ using Domain;
 using System.Linq;
 using Windows.UI.Input.Preview.Injection;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Microsoft.UI.Xaml.Controls;
 
 
 
@@ -69,7 +70,9 @@ namespace fasttool_modern
             deviceCheckTimer.Start();
             audioController = new CoreAudioController();
             defaultPlaybackDevice = audioController.DefaultPlaybackDevice;
-            serialPortManager.DataReceived += OnDataReceived; 
+            serialPortManager.connectDevice();
+            serialPortManager.DataReceived += OnDataReceived;
+
         }
 
         private void OnDataReceived(string data)
@@ -80,10 +83,15 @@ namespace fasttool_modern
             {
                 dispatcherQueue.TryEnqueue(() =>
                 {
+                    // Przykładowa aktualizacja kontrolki UI
+
                     ProcessResponse(data);
                 });
             }
         }
+
+
+
 
         private void ProcessResponse(string response)
         {

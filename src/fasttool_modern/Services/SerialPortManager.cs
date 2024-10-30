@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace fasttool_modern.Services
 {
@@ -14,7 +11,7 @@ namespace fasttool_modern.Services
         private SerialPortManager connection;
         private SerialPort serialPort;
         public event Action<string> DataReceived;
-        string portName = "COM17"; // Ustaw odpowiedni port COM
+        string portName = "COM19"; // Ustaw odpowiedni port COM
         int baudRate = 115200;
 
         private static SerialPortManager instance;
@@ -68,17 +65,8 @@ namespace fasttool_modern.Services
 
         }
 
-        public bool askConnection()
-        {
-            if (serialPort != null && serialPort.IsOpen)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public bool askConnection() => serialPort != null && serialPort.IsOpen ? true : false;
+       
 
         public void comSend(string message)
         {

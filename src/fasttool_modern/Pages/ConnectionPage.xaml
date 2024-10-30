@@ -14,7 +14,7 @@
         <ComboBox x:Name="comboBoxPorts"  Width="200" Grid.Column="0" Grid.Row="1">
             
         </ComboBox>
-        <Button x:Name="connectionButton" Content="Connect" Grid.Column="1" Grid.Row="1"></Button>
+        <Button x:Name="connectionButton" Content="Connect" Grid.Column="1" Grid.Row="1" Click="connect_Click"></Button>
 
     </Grid>
 </Page>

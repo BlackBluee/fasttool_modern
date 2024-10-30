@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Domain;
+using fasttool_modern.Helpers;
 
 namespace fasttool_modern
 {
@@ -77,7 +78,7 @@ namespace fasttool_modern
         {
             using (var context = new AppDbContext()) { 
                 context.Database.EnsureCreated();
-                string pid = GenerateRandomString(4);
+                string pid = StringGenerator.GenerateRandomString(4);
                 string profile = ComboBoxProfiles.SelectedItem as string;
                 context.Profiles.Add(new Profile { ProfileID = pid, ProfileName = profile });
                 context.SaveChanges();
@@ -122,12 +123,5 @@ namespace fasttool_modern
             LoadProfiles();
         }
 
-        private static string GenerateRandomString(int length)
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            Random random = new Random();
-            return new string(Enumerable.Repeat(chars, length)
-                                        .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
     }
 }
