@@ -23,7 +23,7 @@ namespace fasttool_modern
         {
             this.InitializeComponent();
             //poczatkowe dane bazy danych
-            InsertDevice("1", "Model1", 1.0f, "COM1");
+            //InsertDevice("1", "Model1", 1.0f, "COM1");
             InsertProfile("HOME", "Home");
             LoadProfiles();
             LoadPanel();

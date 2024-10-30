@@ -14,7 +14,7 @@ namespace fasttool_modern.Services
         private SerialPortManager connection;
         private SerialPort serialPort;
         public event Action<string> DataReceived;
-        string portName = "COM7"; // Ustaw odpowiedni port COM
+        string portName = "COM17"; // Ustaw odpowiedni port COM
         int baudRate = 115200;
 
         private static SerialPortManager instance;
@@ -70,7 +70,7 @@ namespace fasttool_modern.Services
 
         public bool askConnection()
         {
-            if (serialPort.IsOpen && serialPort != null)
+            if (serialPort != null && serialPort.IsOpen)
             {
                 return true;
             }

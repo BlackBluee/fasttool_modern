@@ -19,18 +19,23 @@ namespace fasttool_modern
 
         private void NewProfiles()
         {
-            var app = Application.Current as App;
-            if (app != null)
+            using (var context = new AppDbContext())
             {
-                foreach (var item in app.availableApps)
+                var profiles = context.Profiles.Select(p => p.ProfileName).ToList();
+                var app = Application.Current as App;
+                if (app != null)
                 {
-                    if (item != null && !ComboBoxProfiles.Items.Contains(item))
+                    foreach (var item in app.availableApps)
                     {
-                        ComboBoxProfiles.Items.Add(item);
+                        if (item != null && !ComboBoxProfiles.Items.Contains(item) && !profiles.Contains(item))
+                        {
+                            ComboBoxProfiles.Items.Add(item);
+                        }
                     }
-                }
 
+                }
             }
+            
         }
 
         private void LoadProfiles()

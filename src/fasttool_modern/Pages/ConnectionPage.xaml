@@ -11,10 +11,10 @@
 
     <Grid ColumnSpacing="10" ColumnDefinitions=" *, Auto" RowDefinitions="Auto, Auto" HorizontalAlignment="Center" Margin="0,100,0,0">
         <TextBlock Text="Choose port" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10"/>
-        <ComboBox Width="200" Grid.Column="0" Grid.Row="1">
+        <ComboBox x:Name="comboBoxPorts"  Width="200" Grid.Column="0" Grid.Row="1">
             
         </ComboBox>
-        <Button Content="Connect" Grid.Column="1" Grid.Row="1"></Button>
+        <Button x:Name="connectionButton" Content="Connect" Grid.Column="1" Grid.Row="1"></Button>
 
     </Grid>
 </Page>
