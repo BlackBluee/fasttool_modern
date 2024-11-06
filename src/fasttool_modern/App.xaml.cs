@@ -5,17 +5,15 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Collections.Generic;
 using fasttool_modern.Services;
-using AudioSwitcher.AudioApi;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Timers;
 using AudioSwitcher.AudioApi.CoreAudio;
 using Windows.System;
-using Domain;
+using Persistance;
 using System.Linq;
 using Windows.UI.Input.Preview.Injection;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using Microsoft.UI.Xaml.Controls;
+
 
 
 
@@ -70,7 +68,7 @@ namespace fasttool_modern
             deviceCheckTimer.Start();
             audioController = new CoreAudioController();
             defaultPlaybackDevice = audioController.DefaultPlaybackDevice;
-            serialPortManager.connectDevice();
+            serialPortManager.ConnectDevice();
             serialPortManager.DataReceived += OnDataReceived;
 
         }
@@ -115,7 +113,7 @@ namespace fasttool_modern
                     var model = deviceInfo.ContainsKey("Model") ? deviceInfo["Model"] : "Unknown";
                     var version = deviceInfo.ContainsKey("Version") ? int.Parse(deviceInfo["Version"]) : 0;
                     //var version = "1.0";
-                    var port = serialPortManager.getPortName();
+                    var port = serialPortManager.GetPortName();
                     try
                     {
                         using (var context = new AppDbContext())
@@ -217,7 +215,7 @@ namespace fasttool_modern
             {
                 while (!cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    if (serialPortManager.askConnection())
+                    if (serialPortManager.AskConnection())
                     {
                         //statusLabel.Text = "Device: connected";
                         //btnIconButton.Image = Properties.Resources.nazwa_ikony;
@@ -309,7 +307,7 @@ namespace fasttool_modern
                         availableApps.Add(currentProcessName);
                     }
                     //Type:AcitveApp,Name: chrome
-                    serialPortManager.comSend("Type:ActiveApp,Name:" + currentProcessName);
+                    serialPortManager.Send("Type:ActiveApp,Name:" + currentProcessName);
                 }
             }
             catch (ArgumentException)

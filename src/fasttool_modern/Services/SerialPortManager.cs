@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.IO.Ports;
-
+using fasttool_modern.Services.Interfaces;
 
 namespace fasttool_modern.Services
 {
-
-    public class SerialPortManager
+    
+    public class SerialPortManager : IConnectionManager
     {
-        private SerialPortManager connection;
+        private SerialPortManager _connection;
         private SerialPort serialPort;
         public event Action<string> DataReceived;
         string portName = "COM19"; // Ustaw odpowiedni port COM
@@ -31,7 +31,7 @@ namespace fasttool_modern.Services
         }
 
 
-        public void connectDevice()
+        public void ConnectDevice()
         {
             serialPort = new SerialPort(portName, baudRate);
 
@@ -42,7 +42,7 @@ namespace fasttool_modern.Services
                 if (!serialPort.IsOpen)
                 {
                     serialPort.Open(); // Otwórz port
-                    getInfoDevice();
+                    GetInfoDevice();
                 }
                 else
                 {
@@ -65,10 +65,10 @@ namespace fasttool_modern.Services
 
         }
 
-        public bool askConnection() => serialPort != null && serialPort.IsOpen ? true : false;
+        public bool AskConnection() => serialPort != null && serialPort.IsOpen ? true : false;
        
 
-        public void comSend(string message)
+        public void Send(string message)
         {
             if (serialPort != null && serialPort.IsOpen)
             {
@@ -76,7 +76,7 @@ namespace fasttool_modern.Services
             }
         }
 
-        public void getInfoDevice()
+        public void GetInfoDevice()
         {
             if (serialPort.IsOpen)
             {
@@ -91,16 +91,16 @@ namespace fasttool_modern.Services
             DataReceived?.Invoke(response);
         }
 
-        public void connect()
+        public void Connect()
         {
             serialPort.Open();
         }
-        public void disconnect()
+        public void Disconnect()
         {
             serialPort.Close();
         }
 
-        public string getPortName()
+        public string GetPortName()
         {
             return serialPort.PortName;
         }

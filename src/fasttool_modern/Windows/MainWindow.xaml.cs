@@ -30,7 +30,7 @@ namespace fasttool_modern
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-            serialPortManager.connectDevice();
+            serialPortManager.ConnectDevice();
         }
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

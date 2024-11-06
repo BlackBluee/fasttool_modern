@@ -1,7 +1,7 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace Domain;
+
+namespace Persistance;
 public class AppDbContext : DbContext
 {
     

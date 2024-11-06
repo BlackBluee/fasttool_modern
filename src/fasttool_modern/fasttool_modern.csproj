@@ -95,7 +95,6 @@
     <Folder Include="Pages\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\shared\Domain\Domain.csproj" />
-    
+    <ProjectReference Include="..\shared\Persistence\Persistence.csproj" />
   </ItemGroup>
 </Project>

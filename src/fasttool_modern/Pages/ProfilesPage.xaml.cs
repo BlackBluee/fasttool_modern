@@ -1,9 +1,7 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Domain;
+using Persistance;
 using fasttool_modern.Helpers;
 
 namespace fasttool_modern
@@ -74,7 +72,7 @@ namespace fasttool_modern
             
         }
 
-        private void addProfile(object sender, RoutedEventArgs e)
+        private void AddProfile(object sender, RoutedEventArgs e)
         {
             using (var context = new AppDbContext()) { 
                 context.Database.EnsureCreated();

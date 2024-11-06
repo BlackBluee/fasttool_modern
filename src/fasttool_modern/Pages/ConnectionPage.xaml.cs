@@ -23,11 +23,11 @@ namespace fasttool_modern
                     comboBoxPorts.Items.Add(port);
                 }
             }
-            comboBoxPorts.SelectedItem = comboBoxPorts.Items.Contains(serialPortManager.getPortName()) ? serialPortManager.getPortName() : comboBoxPorts.Items[0];
+            comboBoxPorts.SelectedItem = comboBoxPorts.Items.Contains(serialPortManager.GetPortName()) ? serialPortManager.GetPortName() : comboBoxPorts.Items[0];
         }
         private void LoadButton()
         {
-            if (serialPortManager.askConnection())
+            if (serialPortManager.AskConnection())
             {
                 connectionButton.Content = "Disconnect";
             }
@@ -37,15 +37,15 @@ namespace fasttool_modern
             }
         }
 
-        private void connect_Click(object sender, RoutedEventArgs e)
+        private void Connect_Click(object sender, RoutedEventArgs e)
         {
-            if (serialPortManager.askConnection())
+            if (serialPortManager.AskConnection())
             {
-                serialPortManager.disconnect();
+                serialPortManager.Disconnect();
             }
             else
             {
-                serialPortManager.connectDevice();
+                serialPortManager.ConnectDevice();
             }
             LoadButton();
         }

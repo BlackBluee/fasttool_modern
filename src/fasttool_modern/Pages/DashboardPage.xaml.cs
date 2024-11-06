@@ -3,8 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Domain;
+using Persistance;
 using fasttool_modern.Helpers;
 
 namespace fasttool_modern
@@ -72,7 +71,7 @@ namespace fasttool_modern
 
         }
 
-        private void addAction()
+        private void AddAction()
         {
 
             var selectedItem = ComboBoxType.SelectedItem as ComboBoxItem;
@@ -88,7 +87,7 @@ namespace fasttool_modern
         
 
         //device , profile, button, action
-        private void addButton(string did, string pid, string bid, string aid, string image, string color)
+        private void AddButton(string did, string pid, string bid, string aid, string image, string color)
         {
             using (var context = new AppDbContext())
             {
@@ -105,7 +104,7 @@ namespace fasttool_modern
             }
         }
 
-        public void getDecive()
+        public void GetDecive()
         {
             using (var context = new AppDbContext())
             {
@@ -117,7 +116,7 @@ namespace fasttool_modern
             }
         }
 
-        private void getProfileID()
+        private void GetProfileID()
         {
             string choseenProfile = ComboBoxProfiles.SelectedItem as string;
             using (var context = new AppDbContext())
@@ -228,17 +227,17 @@ namespace fasttool_modern
 
         private void SaveButton(object sender, RoutedEventArgs e)
         {
-            getProfileID();
+            GetProfileID();
             var selectedItem1 = ComboBoxType.SelectedItem as ComboBoxItem;
             string comboBoxValue = selectedItem1?.Content.ToString() ?? "Nie wybrano opcji";
-            addAction();
+            AddAction();
             output.Text = $"Profil ID: {selectedPid}, Przycisk:{modifyButton} , Typ: {comboBoxValue}, akcja: {TextAction.Text}, aid: {selectedAid}";
-            addButton(selectedDid, selectedPid, modifyButton.ToString(), selectedAid, selectedImage, "null");
+            AddButton(selectedDid, selectedPid, modifyButton.ToString(), selectedAid, selectedImage, "null");
         }
       
-        private void activebutton_Click(object sender, RoutedEventArgs e)
+        private void Activebutton_Click(object sender, RoutedEventArgs e)
         {
-            getProfileID();
+            GetProfileID();
             LoadButton();
             bt1.IsEnabled = true;
             bt2.IsEnabled = true;
@@ -254,7 +253,7 @@ namespace fasttool_modern
             activeText.Text = $"Button {button.Tag}";
         }
 
-        private void image_Click(object sender, RoutedEventArgs e) {
+        private void Image_Click(object sender, RoutedEventArgs e) {
             ChooseImage newWindow = new ChooseImage();
             newWindow.Activate();
             newWindow.Closed += NewWindow_Closed;

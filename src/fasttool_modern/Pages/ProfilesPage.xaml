@@ -25,7 +25,7 @@
             <TextBlock Text="Add screen profile" FontSize="18" Grid.Column="0" Grid.Row="0" Margin="0,0,0,10"></TextBlock>
             <ComboBox x:Name="ComboBoxProfiles" Grid.Column="0" Grid.Row="1" Width="200">
             </ComboBox>
-            <Button Grid.Column="1" Grid.Row="1" Click="addProfile">
+            <Button Grid.Column="1" Grid.Row="1" Click="AddProfile">
                 <FontIcon Glyph="&#xE710;" />
             </Button>
         </Grid>
