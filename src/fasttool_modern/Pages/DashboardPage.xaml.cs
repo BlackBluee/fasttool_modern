@@ -14,7 +14,6 @@ namespace fasttool_modern
 
         string selectedDid = "1";
         string selectedPid = "HOME";
-        string selectedBid = string.Empty;
         string selectedAid = string.Empty;
         string selectedImage = "image";
         
@@ -24,11 +23,11 @@ namespace fasttool_modern
             this.InitializeComponent();
             //poczatkowe dane bazy danych
             //InsertDevice("1", "Model1", 1.0f, "COM1");
-            InsertProfile("HOME", "Home");
+            //InsertProfile("HOME", "Home");
             LoadProfiles();
             LoadPanel();
             //getDecive();
-            //LoadButton();
+            LoadButton();
             ComboBoxProfiles.SelectedIndex = 0;
             bt1.IsEnabled = false;
             modifyButton = 1;
@@ -80,7 +79,7 @@ namespace fasttool_modern
             using (var context = new AppDbContext())
             {
                 context.Database.EnsureCreated();
-                context.Actions.Add(new Action { ActionID = selectedAid, Type = comboBoxValue, DoAction = TextAction.Text });
+                context.Actions.Add(new Action { ActionID = selectedAid, Type = comboBoxValue, DoAction = TextAction.Text, ButtonID = modifyButton.ToString(), ProfileID = selectedPid });
                 context.SaveChanges();
             }
         }
@@ -192,7 +191,6 @@ namespace fasttool_modern
 
         private void LoadButton() 
         {
-            string aid;
             try
             {
                 using (var context = new AppDbContext())
@@ -205,15 +203,25 @@ namespace fasttool_modern
                         output.Text = $"Device ID: {button.DeviceID}, Profile ID: {button.ProfileID}, Button ID: {button.ButtonID}, Action ID: {button.ActionID}, Image: {button.Image}, Color: {button.Color}";
 
                         selectedImage = button.Image;
+                        
                         var action = context.Actions.Where(a => a.ActionID == button.ActionID).SingleOrDefault();
-                        TextAction.Text = action.DoAction;
-                        foreach (ComboBoxItem item in ComboBoxType.Items)
+                        if (action != null)
                         {
-                            if (item.Content.ToString() == action.Type)
+                            TextAction.Text = action.DoAction ?? "Brak akcji"; // Ustaw wartość domyślną, jeśli DoAction jest NULL
+
+                            // Przeglądanie elementów w ComboBoxType i wybieranie odpowiedniego, jeśli Type nie jest NULL
+                            foreach (ComboBoxItem item in ComboBoxType.Items)
                             {
-                                ComboBoxType.SelectedItem = item;
-                                break;
+                                if (action.Type != null && item.Content.ToString() == action.Type)
+                                {
+                                    ComboBoxType.SelectedItem = item;
+                                    break;
+                                }
                             }
+                        }
+                        else
+                        {
+                            TextAction.Text = "Akcja nie znaleziona";
                         }
                     }
 
@@ -222,6 +230,7 @@ namespace fasttool_modern
             catch (Exception e)
             {
                 output.Text = e.Message;
+                
             }
         }
 
@@ -236,9 +245,7 @@ namespace fasttool_modern
         }
       
         private void Activebutton_Click(object sender, RoutedEventArgs e)
-        {
-            GetProfileID();
-            LoadButton();
+        {   
             bt1.IsEnabled = true;
             bt2.IsEnabled = true;
             bt3.IsEnabled = true;
@@ -251,6 +258,8 @@ namespace fasttool_modern
             button.IsEnabled = false;
             modifyButton = Convert.ToInt32(button.Tag);
             activeText.Text = $"Button {button.Tag}";
+            GetProfileID();
+            LoadButton();
         }
 
         private void Image_Click(object sender, RoutedEventArgs e) {
