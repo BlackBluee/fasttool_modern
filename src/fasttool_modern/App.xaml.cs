@@ -13,6 +13,7 @@ using Windows.System;
 using Persistance;
 using System.Linq;
 using Windows.UI.Input.Preview.Injection;
+using Microsoft.UI.Xaml.Controls;
 
 
 
@@ -22,21 +23,6 @@ namespace fasttool_modern
 {
     public partial class App : Application
     {
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("user32.dll")]
-        private static extern int GetWindowTextLength(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        private static extern bool GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
-
         public string previousProcessName { get; set; } = "";
         public List<string> availableApps = new List<string>();
 
@@ -56,10 +42,10 @@ namespace fasttool_modern
         public App()
         {
             this.InitializeComponent();
-            windowCheckTimer = new System.Timers.Timer();
-            windowCheckTimer.Interval = 1000; // Sprawdzanie co sekundę  
-            windowCheckTimer.Elapsed += new System.Timers.ElapsedEventHandler(CheckActiveWindow);
-            windowCheckTimer.Start();
+
+            ActiveWindowTracker tracker = new ActiveWindowTracker();
+            tracker.StartTracking();
+
             StartConnectionChecker();
             // Inicjalizacja timera - jeśli potrzebujesz timera w środowisku niewizualnym, wielowątkowym lub w aplikacji konsolowej.
             deviceCheckTimer = new System.Timers.Timer();
@@ -72,6 +58,7 @@ namespace fasttool_modern
             serialPortManager.DataReceived += OnDataReceived;
 
         }
+        
 
         private void OnDataReceived(string data)
         {
@@ -87,9 +74,6 @@ namespace fasttool_modern
                 });
             }
         }
-
-
-
 
         private void ProcessResponse(string response)
         {
@@ -146,7 +130,7 @@ namespace fasttool_modern
                     {
                         if (action.Type == "open")
                         {
-                            RunExternalApplication(action.DoAction);
+                            //RunExternalApplication(action.DoAction);
                         }
                         else if (action.Type == "key")
                         {
@@ -158,16 +142,16 @@ namespace fasttool_modern
                             switch (action.DoAction)
                             {
                                 case "play/pause":
-                                    SendMediaKey(APPCOMMAND_MEDIA_PLAY_PAUSE);
+                                    TaskManager.SendMediaKey(APPCOMMAND_MEDIA_PLAY_PAUSE);
                                     break;
                                 case "mute/unmute":
                                     defaultPlaybackDevice.Mute(!defaultPlaybackDevice.IsMuted);
                                     break;
                                 case "next":
-                                    SendMediaKey(APPCOMMAND_MEDIA_NEXTTRACK);
+                                    TaskManager.SendMediaKey(APPCOMMAND_MEDIA_NEXTTRACK);
                                     break;
                                 case "previous":
-                                    SendMediaKey(APPCOMMAND_MEDIA_PREVIOUSTRACK);
+                                    TaskManager.SendMediaKey(APPCOMMAND_MEDIA_PREVIOUSTRACK);
                                     break;
                                 case "volume up":
                                     ++defaultPlaybackDevice.Volume;
@@ -249,73 +233,9 @@ namespace fasttool_modern
                 }
             }
         }
+        
 
-        private static void SendMediaKey(int key)
-        {
-            IntPtr hWnd = GetForegroundWindow();
-            SendMessageW(hWnd, WM_APPCOMMAND, hWnd, (IntPtr)(key << 16));
-        }
-
-        private void SimulateKeyPress(VirtualKey key)
-        {
-            var inputInjector = InputInjector.TryCreate();
-
-            if (inputInjector != null)
-            {
-                // Utwórz listę klawiszy do naciśnięcia
-                var downEvent = new InjectedInputKeyboardInfo
-                {
-                    VirtualKey = (ushort)key,
-                    KeyOptions = InjectedInputKeyOptions.None
-                };
-
-                var upEvent = new InjectedInputKeyboardInfo
-                {
-                    VirtualKey = (ushort)key,
-                    KeyOptions = InjectedInputKeyOptions.KeyUp
-                };
-
-                // Wstrzykuj klawisz jako naciśnięcie i zwolnienie
-                inputInjector.InjectKeyboardInput(new[] { downEvent, upEvent });
-            }
-        }
-        private void RunExternalApplication(string path)
-        {
-            try
-            {
-                Process.Start(path);
-            }
-            catch (Exception ex)
-            {
-                //MessageBox.Show($"Błąd uruchamiania aplikacji: {ex.Message}");
-            }
-        }
-
-        private void CheckActiveWindow(object sender, EventArgs e)
-        {
-            IntPtr handle = GetForegroundWindow();
-            GetWindowThreadProcessId(handle, out uint processId);
-            try
-            {
-                Process process = Process.GetProcessById((int)processId);
-                string currentProcessName = process.ProcessName;
-                if (currentProcessName != previousProcessName)
-                {
-                    previousProcessName = currentProcessName;
-                    if (!availableApps.Contains(currentProcessName))
-                    {
-                        availableApps.Add(currentProcessName);
-                    }
-                    //Type:AcitveApp,Name: chrome
-                    serialPortManager.Send("Type:ActiveApp,Name:" + currentProcessName);
-                }
-            }
-            catch (ArgumentException)
-            {
-                // Proces mógł zostać zakończony, zresetuj nazwę procesu
-                previousProcessName = "";
-            }
-        }
+        
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
            
