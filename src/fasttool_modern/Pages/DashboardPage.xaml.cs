@@ -5,12 +5,15 @@ using System;
 using System.Linq;
 using Persistance;
 using fasttool_modern.Helpers;
+using fasttool_modern.Services;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace fasttool_modern
 {
     public sealed partial class DashboardPage : Page
     {
         int modifyButton = 1;
+        SerialPortManager serialPortManager = SerialPortManager.Instance;
 
         string selectedDid = "1";
         string selectedPid = "HOME";
@@ -241,7 +244,8 @@ namespace fasttool_modern
             string comboBoxValue = selectedItem1?.Content.ToString() ?? "Nie wybrano opcji";
             AddAction();
             output.Text = $"Profil ID: {selectedPid}, Przycisk:{modifyButton} , Typ: {comboBoxValue}, akcja: {TextAction.Text}, aid: {selectedAid}";
-            AddButton(selectedDid, selectedPid, modifyButton.ToString(), selectedAid, selectedImage, "null");
+            AddButton(selectedDid, selectedPid, modifyButton.ToString(), selectedAid, selectedImage, "black");
+            serialPortManager.Send("Type:Image,Button:" + modifyButton.ToString() + ", location: /"+ selectedImage + ".bin");
         }
       
         private void Activebutton_Click(object sender, RoutedEventArgs e)

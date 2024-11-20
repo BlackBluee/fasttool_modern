@@ -14,6 +14,8 @@ using Persistance;
 using System.Linq;
 using Windows.UI.Input.Preview.Injection;
 using Microsoft.UI.Xaml.Controls;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Linq.Expressions;
 
 
 
@@ -62,17 +64,7 @@ namespace fasttool_modern
 
         private void OnDataReceived(string data)
         {
-            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-
-            if (dispatcherQueue != null)
-            {
-                dispatcherQueue.TryEnqueue(() =>
-                {
-                    // Przykładowa aktualizacja kontrolki UI
-
-                    ProcessResponse(data);
-                });
-            }
+            ProcessResponse(data);           
         }
 
         private void ProcessResponse(string response)
@@ -113,80 +105,89 @@ namespace fasttool_modern
                 }
                 else if (type == "ButtonPress")
                 {
-                    ButtonData buttonData;
-                    Action action;
-                    Profile profile;
-                    string pressedButton = deviceInfo.ContainsKey("Button") ? deviceInfo["Button"] : string.Empty;
+
+                    string pressedButton = deviceInfo.ContainsKey("Button") ? deviceInfo["Button"].Trim() : string.Empty;
+
 
                     // Wyszukanie danych przycisku na podstawie numeru przycisku
                     using (var context = new AppDbContext())
                     {
-                        profile = context.Profiles.FirstOrDefault(p => p.ProfileName == previousProcessName);
-                        buttonData = context.ButtonDatas.Where(b => b.ButtonID == pressedButton && b.ProfileID == "HOME").SingleOrDefault();
-                        action = context.Actions.Where(a => a.ActionID == buttonData.ActionID).SingleOrDefault();
-                    }
+                        var profile = context.Profiles.FirstOrDefault(p => p.ProfileName == previousProcessName);
+                        var buttonData = context.ButtonDatas
+                            .Where(b => b.ButtonID == pressedButton && b.ProfileID == "HOME")
+                            .SingleOrDefault();
+                        var action = buttonData == null ? null : context.Actions.SingleOrDefault(a => a.ActionID == buttonData.ActionID);
 
-                    if (!object.ReferenceEquals(buttonData, null))
-                    {
-                        if (action.Type == "open")
+
+
+                        if (!object.ReferenceEquals(buttonData, null))
                         {
-                            //RunExternalApplication(action.DoAction);
-                        }
-                        else if (action.Type == "key")
-                        {
-                            //SimulateKeyPress(action.DoAction);
-                        }
-                        else if (action.Type == "multimedia")
-                        {
-                            //obsługa przycisków multimedialnych
-                            switch (action.DoAction)
+                            if (action.Type == "open app")
                             {
-                                case "play/pause":
-                                    TaskManager.SendMediaKey(APPCOMMAND_MEDIA_PLAY_PAUSE);
-                                    break;
-                                case "mute/unmute":
-                                    defaultPlaybackDevice.Mute(!defaultPlaybackDevice.IsMuted);
-                                    break;
-                                case "next":
-                                    TaskManager.SendMediaKey(APPCOMMAND_MEDIA_NEXTTRACK);
-                                    break;
-                                case "previous":
-                                    TaskManager.SendMediaKey(APPCOMMAND_MEDIA_PREVIOUSTRACK);
-                                    break;
-                                case "volume up":
-                                    ++defaultPlaybackDevice.Volume;
-                                    break;
-                                case "volume down":
-                                    --defaultPlaybackDevice.Volume;
-                                    break;
-                                default:
-                                    //MessageBox.Show($"Nieobsługiwana akcja multimedialna: {buttonData.Action}", "Błąd");
-                                    break;
+
+                                try
+                                {
+                                    Process.Start(action.DoAction);
+                                }
+                                catch (Exception ex)
+                                {
+                                    //MessageBox.Show($"Błąd uruchamiania aplikacji: {ex.Message}");
+                                }
+                                
                             }
+                            else if (action.Type == "hotkey")
+                            {
+                                //TaskManager.SimulateKeyPress(action.DoAction);
+                            }
+                            else if (action.Type == "multimedia")
+                            {
+                                //obsługa przycisków multimedialnych
+                                switch (action.DoAction)
+                                {
+                                    case "play/pause":
+                                        TaskManager.SendMediaKey(APPCOMMAND_MEDIA_PLAY_PAUSE);
+                                        break;
+                                    case "mute/unmute":
+                                        defaultPlaybackDevice.Mute(!defaultPlaybackDevice.IsMuted);
+                                        break;
+                                    case "next":
+                                        TaskManager.SendMediaKey(APPCOMMAND_MEDIA_NEXTTRACK);
+                                        break;
+                                    case "previous":
+                                        TaskManager.SendMediaKey(APPCOMMAND_MEDIA_PREVIOUSTRACK);
+                                        break;
+                                    case "volume up":
+                                        ++defaultPlaybackDevice.Volume;
+                                        break;
+                                    case "volume down":
+                                        --defaultPlaybackDevice.Volume;
+                                        break;
+                                    default:
+                                        //MessageBox.Show($"Nieobsługiwana akcja multimedialna: {buttonData.Action}", "Błąd");
+                                        break;
+                                }
+                            }
+                            
+                        }
+                        
+                        
+
+
+                    else if (type == "winSound")
+                        {
+                            int valueSound = deviceInfo.ContainsKey("Value") ? int.Parse(deviceInfo["Value"]) : 0;
+                            defaultPlaybackDevice.Volume = valueSound;
+                        }
+                        else if (type == "winBrightness")
+                        {
+                            int valueBrightness = deviceInfo.ContainsKey("Value") ? int.Parse(deviceInfo["Value"]) : 0;
+
                         }
                         else
                         {
-                            //MessageBox.Show($"Nieobsługiwany typ akcji: {buttonData.ActionType}", "Błąd");
+                            //MessageBox.Show($"Nieobsługiwany typ wiadomości: {type}", "Błąd");
                         }
                     }
-                    else
-                    {
-                        //MessageBox.Show($"Brak danych dla przycisku {pressedButton}", "Brak danych");
-                    }
-                }
-                else if (type == "winSound")
-                {
-                    int valueSound = deviceInfo.ContainsKey("Value") ? int.Parse(deviceInfo["Value"]) : 0;
-                    defaultPlaybackDevice.Volume = valueSound;
-                }
-                else if (type == "winBrightness")
-                {
-                    int valueBrightness = deviceInfo.ContainsKey("Value") ? int.Parse(deviceInfo["Value"]) : 0;
-
-                }
-                else
-                {
-                    //MessageBox.Show($"Nieobsługiwany typ wiadomości: {type}", "Błąd");
                 }
 
             }
