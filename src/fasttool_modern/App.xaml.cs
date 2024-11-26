@@ -28,7 +28,7 @@ namespace fasttool_modern
     public partial class App : Application
     {
         public string previousProcessName { get; set; } = "";
-        public List<string> availableApps = new List<string>();
+
 
         private System.Timers.Timer windowCheckTimer;
 
@@ -43,6 +43,7 @@ namespace fasttool_modern
         private System.Timers.Timer deviceCheckTimer;
 
         SerialPortManager _serialPortManager = SerialPortManager.Instance;
+        ActiveWindowTracker _activeWindowTracker = ActiveWindowTracker.Instance;
         public App()
         {
             this.InitializeComponent();
@@ -51,8 +52,8 @@ namespace fasttool_modern
 
             _serialPortManager.DataReceived += OnDataReceived;
 
-            ActiveWindowTracker tracker = new ActiveWindowTracker();
-            tracker.StartTracking();
+
+            _activeWindowTracker.StartTracking();
 
             StartConnectionChecker();
             // Inicjalizacja timera - jeśli potrzebujesz timera w środowisku niewizualnym, wielowątkowym lub w aplikacji konsolowej.

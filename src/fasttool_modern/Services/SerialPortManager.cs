@@ -9,7 +9,7 @@ namespace fasttool_modern.Services
     
     public class SerialPortManager : IConnectionManager
     {
-        private SerialPortManager _connection;
+
         private SerialPort serialPort;
         public event Action<string> DataReceived;
         string devicePortName = string.Empty;

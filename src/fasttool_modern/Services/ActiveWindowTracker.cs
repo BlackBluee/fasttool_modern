@@ -16,8 +16,8 @@ namespace fasttool_modern.Services
         public string previousProcessName { get; set; } = "";
         public List<string> availableApps = new List<string>();
         SerialPortManager serialPortManager = SerialPortManager.Instance;
+        private static ActiveWindowTracker instance;
 
-        
 
         public ActiveWindowTracker()
         {
@@ -26,6 +26,17 @@ namespace fasttool_modern.Services
             windowCheckTimer.Elapsed += CheckActiveWindow; // Subskrypcja metody do zdarzenia Elapsed
         }
 
+        public static ActiveWindowTracker Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new ActiveWindowTracker();
+                }
+                return instance;
+            }
+        }
         public void StartTracking()
         {
             windowCheckTimer.Start(); // Rozpoczęcie działania timera

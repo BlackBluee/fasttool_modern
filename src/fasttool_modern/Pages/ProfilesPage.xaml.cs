@@ -3,12 +3,14 @@ using Microsoft.UI.Xaml.Controls;
 using System.Linq;
 using Persistance;
 using fasttool_modern.Helpers;
+using fasttool_modern.Services;
 
 namespace fasttool_modern
 {
     public sealed partial class ProfilesPage : Page
     {
         string selectedDid = "1";
+        ActiveWindowTracker _activeWindowTracker = ActiveWindowTracker.Instance;
         public ProfilesPage()
         {
             this.InitializeComponent();
@@ -25,7 +27,7 @@ namespace fasttool_modern
                 var app = Application.Current as App;
                 if (app != null)
                 {
-                    foreach (var item in app.availableApps)
+                    foreach (var item in _activeWindowTracker.availableApps)
                     {
                         if (item != null && !ComboBoxProfiles.Items.Contains(item) && !profiles.Contains(item))
                         {
