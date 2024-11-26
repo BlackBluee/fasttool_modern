@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Ports;
+using System.Threading.Tasks;
 using fasttool_modern.Services.Interfaces;
 
 namespace fasttool_modern.Services
@@ -11,12 +12,14 @@ namespace fasttool_modern.Services
         private SerialPortManager _connection;
         private SerialPort serialPort;
         public event Action<string> DataReceived;
-        string portName = "COM19"; // Ustaw odpowiedni port COM
-        int baudRate = 115200;
+        string devicePortName = "";
+        readonly int baudRate = 115200;
 
         private static SerialPortManager instance;
 
-        private SerialPortManager() { }
+        private SerialPortManager() { 
+        FindDeviceAsync();
+        }
 
         public static SerialPortManager Instance
         {
@@ -30,12 +33,62 @@ namespace fasttool_modern.Services
             }
         }
 
+        public async Task<string> FindDeviceAsync()
+        {
+            string[] ports = SerialPort.GetPortNames();
+            
+                foreach (var port in ports)
+                {
+                    string result = await Task.Run(() => IdentifyDevice(port));
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+                
+            
+            return null;
+        }
+
+        private string IdentifyDevice(string portName)
+        {
+            try
+            {
+                using (var tserialPort = new SerialPort(portName, baudRate))
+                {
+                    tserialPort.ReadTimeout = 100;
+                    tserialPort.Open();
+                    tserialPort.WriteLine("HELLO");
+                    string response = tserialPort.ReadLine();
+                    if (response.Contains("FASTPANEL"))
+                    {
+                        devicePortName = portName;
+                        serialPort = tserialPort;
+                        tserialPort.Close();
+                        serialPort = new SerialPort(devicePortName, baudRate);
+                        serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+                        serialPort.Open();
+                        return portName;
+                    }
+                }
+            }
+            catch (TimeoutException)
+            {
+                Console.WriteLine($"Timeout na porcie {portName}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Błąd na porcie {portName}: {ex.Message}");
+            }
+            devicePortName = "";
+            return null;
+        }
 
         public void ConnectDevice()
         {
-            serialPort = new SerialPort(portName, baudRate);
+            //serialPort = new SerialPort(devicePortName, baudRate);
 
-            serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            //serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
 
             try
             {
@@ -102,7 +155,7 @@ namespace fasttool_modern.Services
 
         public string GetPortName()
         {
-            return serialPort.PortName;
+            return devicePortName;
         }
     }
 }

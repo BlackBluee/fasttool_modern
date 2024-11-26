@@ -25,8 +25,8 @@ namespace fasttool_modern
         {
             this.InitializeComponent();
             //poczatkowe dane bazy danych
-            //InsertDevice("1", "Model1", 1.0f, "COM1");
-            //InsertProfile("HOME", "Home");
+            InsertDevice("1", "Model1", 1.0f, "COM1");
+            InsertProfile("HOME", "Home");
             LoadProfiles();
             LoadPanel();
             //getDecive();
@@ -63,6 +63,10 @@ namespace fasttool_modern
                 {
                     context.Database.EnsureCreated();
                     context.Profiles.Add(new Profile { ProfileID = pid, ProfileName = pname });
+                    for (int i = 1; i <= 6; i++)
+                    {
+                        context.ButtonDatas.Add(new ButtonData { DeviceID = selectedDid, ProfileID = pid, ButtonID = i.ToString() });
+                    }
                     context.SaveChanges();
                 }
             }
@@ -82,7 +86,7 @@ namespace fasttool_modern
             using (var context = new AppDbContext())
             {
                 context.Database.EnsureCreated();
-                context.Actions.Add(new Action { ActionID = selectedAid, Type = comboBoxValue, DoAction = TextAction.Text, ButtonID = modifyButton.ToString(), ProfileID = selectedPid });
+                context.Actions.Add(new Action { ActionID = selectedAid, Type = comboBoxValue, DoAction = TextAction.Text, ButtonID = modifyButton.ToString(), ProfileID = selectedPid, Queue = 0});
                 context.SaveChanges();
             }
         }
@@ -141,6 +145,16 @@ namespace fasttool_modern
         }
         private void LoadPanel() 
         {
+            if(selectedPid == "HOME")
+            {
+                bt7.IsEnabled = false;
+                bt8.IsEnabled = false;
+            }
+            else
+            {
+                bt7.IsEnabled = true;
+                bt8.IsEnabled = false;
+            }
             using (var context = new AppDbContext())
             {
                 context.Database.EnsureCreated();
@@ -156,6 +170,7 @@ namespace fasttool_modern
                         case "1":
                             image1.Source = bitmap;
                             bt1.Content = image1;
+                            serialPortManager.Send("Type:Image,Button:" + button.ButtonID.ToString() + ", location: /" + button.Image + ".bin");
                             break;
                         case "2":
                             image1.Source = bitmap;
@@ -256,8 +271,16 @@ namespace fasttool_modern
             bt4.IsEnabled = true;
             bt5.IsEnabled = true;
             bt6.IsEnabled = true;
-            bt7.IsEnabled = true;
-            bt8.IsEnabled = true;
+            if (selectedPid == "HOME")
+            {
+                bt7.IsEnabled = false;
+                bt8.IsEnabled = false;
+            }
+            else
+            {
+                bt7.IsEnabled = true;
+                bt8.IsEnabled = false;
+            }
             Button button = sender as Button;
             button.IsEnabled = false;
             modifyButton = Convert.ToInt32(button.Tag);

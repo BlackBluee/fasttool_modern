@@ -16,6 +16,8 @@ using Windows.UI.Input.Preview.Injection;
 using Microsoft.UI.Xaml.Controls;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Linq.Expressions;
+using Windows.ApplicationModel.Core;
+using Microsoft.UI.Dispatching; // Ważna dyrektywa do DispatcherQueue
 
 
 
@@ -40,10 +42,14 @@ namespace fasttool_modern
         private CoreAudioDevice defaultPlaybackDevice;
         private System.Timers.Timer deviceCheckTimer;
 
-        SerialPortManager serialPortManager = SerialPortManager.Instance;
+        SerialPortManager _serialPortManager = SerialPortManager.Instance;
         public App()
         {
             this.InitializeComponent();
+            RunFindDeviceInBackground();
+
+
+            _serialPortManager.DataReceived += OnDataReceived;
 
             ActiveWindowTracker tracker = new ActiveWindowTracker();
             tracker.StartTracking();
@@ -56,11 +62,58 @@ namespace fasttool_modern
             deviceCheckTimer.Start();
             audioController = new CoreAudioController();
             defaultPlaybackDevice = audioController.DefaultPlaybackDevice;
-            serialPortManager.ConnectDevice();
-            serialPortManager.DataReceived += OnDataReceived;
+            
 
         }
-        
+
+        private void RunFindDeviceInBackground()
+        {
+            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+            // Uruchamiamy FindDeviceAsync w tle za pomocą Task.Run, aby nie blokować głównego wątku UI
+            var task = Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        // Wywołujemy FindDeviceAsync w tle
+                        string devicePort = await _serialPortManager.FindDeviceAsync();
+
+                        // Zaktualizowanie UI po zakończeniu operacji
+                        var dispatcherQueue = CoreApplication.MainView.DispatcherQueue;
+                        dispatcherQueue.TryEnqueue(() =>
+                        {
+                            if (!string.IsNullOrEmpty(devicePort))
+                            {
+                                Console.WriteLine($"Znaleziono urządzenie na porcie {devicePort}");
+                                cts.Cancel();
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("Nie znaleziono urządzenia.");
+                                cts.Cancel();
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        // Obsługuje wszelkie wyjątki, które mogą wystąpić podczas operacji
+                        var dispatcherQueue = CoreApplication.MainView.DispatcherQueue;
+                        dispatcherQueue.TryEnqueue(() =>
+                        {
+                            Console.WriteLine($"Błąd przy znajdowaniu urządzenia: {ex.Message}");
+                            cts.Cancel();
+                        });
+                    }
+                }
+                Console.WriteLine("Task was cancelled.");
+            }, token);
+        }
+
+
+
 
         private void OnDataReceived(string data)
         {
@@ -89,7 +142,7 @@ namespace fasttool_modern
                     var model = deviceInfo.ContainsKey("Model") ? deviceInfo["Model"] : "Unknown";
                     var version = deviceInfo.ContainsKey("Version") ? int.Parse(deviceInfo["Version"]) : 0;
                     //var version = "1.0";
-                    var port = serialPortManager.GetPortName();
+                    var port = _serialPortManager.GetPortName();
                     try
                     {
                         using (var context = new AppDbContext())
@@ -195,22 +248,21 @@ namespace fasttool_modern
 
         private void StartConnectionChecker()
         {
+            bool search = true;
             cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() =>
             {
                 while (!cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    if (serialPortManager.AskConnection())
+                    if (_serialPortManager.AskConnection())
                     {
                         //statusLabel.Text = "Device: connected";
                         //btnIconButton.Image = Properties.Resources.nazwa_ikony;
                     }
-                    else
-                    {
-                        //statusLabel.Text = "Device: disconnected";
+                    else { 
                     }
                     Console.WriteLine("Sprawdzanie w tle...");
-                    Thread.Sleep(1000); // Opóźnienie 1 sekunda
+                Task.Delay(1000);
                 }
             }, cancellationTokenSource.Token);
         }

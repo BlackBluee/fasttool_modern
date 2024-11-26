@@ -20,7 +20,7 @@ namespace fasttool_modern
       
         public string selectedImage = "";
 
-        SerialPortManager serialPortManager = SerialPortManager.Instance;
+        SerialPortManager _serialPortManager = SerialPortManager.Instance;
         public MainWindow()
         {
             this.InitializeComponent();
@@ -30,11 +30,12 @@ namespace fasttool_modern
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-            serialPortManager.ConnectDevice();
+            
         }
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
+            
             var selectedItem = args.SelectedItem as NavigationViewItem;
             var pageTag = selectedItem.Tag.ToString();
 

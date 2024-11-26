@@ -42,6 +42,16 @@ public class AppDbContext : DbContext
             .Property(b => b.ButtonID)
             .HasMaxLength(16);
 
+        modelBuilder.Entity<ButtonData>()
+            .Property(b => b.DeviceID)
+            .IsRequired(false);
+        modelBuilder.Entity<ButtonData>()
+            .Property(b => b.Image)
+            .IsRequired(false);
+        modelBuilder.Entity<ButtonData>()
+            .Property(b => b.Color)
+            .IsRequired(false);
+
         modelBuilder.Entity<Device>()
             .Property(d => d.DeviceID)
             .HasMaxLength(16);
@@ -50,6 +60,7 @@ public class AppDbContext : DbContext
             .Property(p => p.ProfileID)
             .HasMaxLength(16);
     }
+
 }
 
 

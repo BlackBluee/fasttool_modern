@@ -8,6 +8,7 @@ namespace fasttool_modern
 {
     public sealed partial class ProfilesPage : Page
     {
+        string selectedDid = "1";
         public ProfilesPage()
         {
             this.InitializeComponent();
@@ -79,6 +80,10 @@ namespace fasttool_modern
                 string pid = StringGenerator.GenerateRandomString(4);
                 string profile = ComboBoxProfiles.SelectedItem as string;
                 context.Profiles.Add(new Profile { ProfileID = pid, ProfileName = profile });
+                for (int i = 1; i <= 7; i++)
+                {
+                    context.ButtonDatas.Add(new ButtonData { DeviceID = selectedDid, ProfileID = pid, ButtonID = i.ToString() });
+                }
                 context.SaveChanges();
             }
             LoadProfiles();
