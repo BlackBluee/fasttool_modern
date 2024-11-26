@@ -4,7 +4,7 @@ namespace fasttool_modern.Services.Interfaces
 {
     public interface IConnectionManager
     {
-        void ConnectDevice();
+        
         void Send(string message);
         void GetInfoDevice();
         bool AskConnection();

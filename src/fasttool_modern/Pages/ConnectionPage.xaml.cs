@@ -45,7 +45,8 @@ namespace fasttool_modern
             }
             else
             {
-                serialPortManager.ConnectDevice();
+                string port = comboBoxPorts.SelectedItem.ToString();
+                serialPortManager.ConnectDevice(port);
             }
             LoadButton();
         }

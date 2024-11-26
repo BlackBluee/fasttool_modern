@@ -164,13 +164,14 @@ namespace fasttool_modern
                 {
                     BitmapImage bitmap = new BitmapImage(new Uri($"ms-appx:///Assets/{button.Image}.png"));
                     Microsoft.UI.Xaml.Controls.Image image1 = new Microsoft.UI.Xaml.Controls.Image();
+                    serialPortManager.Send("Type:Image,Button:" + button.ButtonID.ToString() + ", location: /" + button.Image + ".bin");
                     //wzorzec factory
                     switch (button.ButtonID)
                     {
                         case "1":
                             image1.Source = bitmap;
                             bt1.Content = image1;
-                            serialPortManager.Send("Type:Image,Button:" + button.ButtonID.ToString() + ", location: /" + button.Image + ".bin");
+                            
                             break;
                         case "2":
                             image1.Source = bitmap;

@@ -12,7 +12,7 @@ namespace fasttool_modern.Services
         private SerialPortManager _connection;
         private SerialPort serialPort;
         public event Action<string> DataReceived;
-        string devicePortName = "";
+        string devicePortName = string.Empty;
         readonly int baudRate = 115200;
 
         private static SerialPortManager instance;
@@ -84,11 +84,12 @@ namespace fasttool_modern.Services
             return null;
         }
 
-        public void ConnectDevice()
+        public void ConnectDevice(string port)
         {
-            //serialPort = new SerialPort(devicePortName, baudRate);
+            devicePortName = port;
+            serialPort = new SerialPort(devicePortName, baudRate);
 
-            //serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
 
             try
             {
@@ -139,9 +140,24 @@ namespace fasttool_modern.Services
 
         private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
-            string response = serialPort.ReadLine();
-            // Wywołanie zdarzenia, gdy dane zostaną odebrane
-            DataReceived?.Invoke(response);
+            try
+            {
+                if (serialPort.IsOpen)
+                {
+                    string response = serialPort.ReadLine();
+                    DataReceived?.Invoke(response);
+                }
+            }
+            catch (IOException ex)
+            {
+                // Handle the exception (e.g., log the error, attempt to reconnect, etc.)
+                Console.WriteLine($"IOException: {ex.Message}");
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Handle the exception (e.g., log the error, ensure the port is open, etc.)
+                Console.WriteLine($"InvalidOperationException: {ex.Message}");
+            }
         }
 
         public void Connect()
