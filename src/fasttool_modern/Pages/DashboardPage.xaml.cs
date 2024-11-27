@@ -145,15 +145,14 @@ namespace fasttool_modern
         }
         private void LoadPanel() 
         {
+            
             if(selectedPid == "HOME")
             {
                 bt7.IsEnabled = false;
-                bt8.IsEnabled = false;
             }
             else
             {
                 bt7.IsEnabled = true;
-                bt8.IsEnabled = false;
             }
             using (var context = new AppDbContext())
             {
@@ -166,49 +165,56 @@ namespace fasttool_modern
                     Microsoft.UI.Xaml.Controls.Image image1 = new Microsoft.UI.Xaml.Controls.Image();
                     serialPortManager.Send("Type:Image,Button:" + button.ButtonID.ToString() + ", location: /" + button.Image + ".bin");
                     //wzorzec factory
-                    switch (button.ButtonID)
+                    var buttonControl = GetButtonControl(button.ButtonID);
+                    if (buttonControl != null)
                     {
-                        case "1":
-                            image1.Source = bitmap;
-                            bt1.Content = image1;
-                            
-                            break;
-                        case "2":
-                            image1.Source = bitmap;
-                            bt2.Content = image1;
-                            break;
-                        case "3":
-                            image1.Source = bitmap;
-                            bt3.Content = image1;
-                            break;
-                        case "4":
-                            image1.Source = bitmap;
-                            bt4.Content = image1;
-                            break;
-                        case "5":
-                            image1.Source = bitmap;
-                            bt5.Content = image1;
-                            break;
-                        case "6":
-                            image1.Source = bitmap;
-                            bt6.Content = image1;
-                            break;
-                        case "7":
-                            image1.Source = bitmap;
-                            bt7.Content = image1;
-                            break;
-                        case "8":
-                            image1.Source = bitmap;
-                            bt8.Content = image1;
-                            break;
+                        image1.Source = bitmap;
+                        buttonControl.Content = image1;
                     }
 
                 }
             }
 
         }
+        private Button GetButtonControl(string buttonId)
+        {
+            return buttonId switch
+            {
+                "1" => bt1,
+                "2" => bt2,
+                "3" => bt3,
+                "4" => bt4,
+                "5" => bt5,
+                "6" => bt6,
+                "7" => bt7,
+                "8" => bt8,
+                _ => null,
+            };
+        }
 
-        private void LoadButton() 
+        private void ComboBoxProfiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            modifyButton = 1;
+            for (int i = 1; i <= 7; i++)
+            {
+                var buttonControl = GetButtonControl(i.ToString());
+                if (buttonControl != null)
+                {
+                    buttonControl.IsEnabled = true;
+                }
+            }
+            if (selectedPid == "HOME")
+            {
+                bt7.IsEnabled = false;
+            }
+            activeText.Text = $"Button {modifyButton}";
+            bt1.IsEnabled = false;
+            GetProfileID();
+            LoadButton();
+            LoadPanel();
+            
+        }
+            private void LoadButton() 
         {
             try
             {
@@ -249,7 +255,6 @@ namespace fasttool_modern
             catch (Exception e)
             {
                 output.Text = e.Message;
-                
             }
         }
 
@@ -266,21 +271,17 @@ namespace fasttool_modern
       
         private void Activebutton_Click(object sender, RoutedEventArgs e)
         {   
-            bt1.IsEnabled = true;
-            bt2.IsEnabled = true;
-            bt3.IsEnabled = true;
-            bt4.IsEnabled = true;
-            bt5.IsEnabled = true;
-            bt6.IsEnabled = true;
+            for(int i = 1; i <= 7; i++)
+            {
+                var buttonControl = GetButtonControl(i.ToString());
+                if (buttonControl != null)
+                {
+                    buttonControl.IsEnabled = true;
+                }
+            }
             if (selectedPid == "HOME")
             {
                 bt7.IsEnabled = false;
-                bt8.IsEnabled = false;
-            }
-            else
-            {
-                bt7.IsEnabled = true;
-                bt8.IsEnabled = false;
             }
             Button button = sender as Button;
             button.IsEnabled = false;
@@ -288,13 +289,13 @@ namespace fasttool_modern
             activeText.Text = $"Button {button.Tag}";
             GetProfileID();
             LoadButton();
+            LoadPanel();
         }
 
         private void Image_Click(object sender, RoutedEventArgs e) {
             ChooseImage newWindow = new ChooseImage();
             newWindow.Activate();
             newWindow.Closed += NewWindow_Closed;
-
         }
 
         private void NewWindow_Closed(object sender, WindowEventArgs e)
@@ -308,32 +309,10 @@ namespace fasttool_modern
                 Microsoft.UI.Xaml.Controls.Image image = new Microsoft.UI.Xaml.Controls.Image();
                 image.Source = bitmap;
                 imgButton.Tag = selectedImage;
-                switch (modifyButton)
+                var buttonControl = GetButtonControl(modifyButton.ToString());
+                if (buttonControl != null)
                 {
-                    case 1:
-                        bt1.Content = image;
-                        break;
-                    case 2:
-                        bt2.Content = image;
-                        break;
-                    case 3:
-                        bt3.Content = image;
-                        break;
-                    case 4:
-                        bt4.Content = image;
-                        break;
-                    case 5:
-                        bt5.Content = image;
-                        break;
-                    case 6:
-                        bt6.Content = image;
-                        break;
-                    case 7:
-                        bt7.Content = image;
-                        break;
-                    case 8:
-                        bt8.Content = image;
-                        break;
+                    buttonControl.Content = image;
                 }
             }
         }
