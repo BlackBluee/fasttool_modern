@@ -27,6 +27,7 @@ namespace fasttool_modern
 {
     public partial class App : Application
     {
+        private Window m_window;
         public string previousProcessName { get; set; } = "";
 
 
@@ -36,85 +37,30 @@ namespace fasttool_modern
         private const int APPCOMMAND_MEDIA_NEXTTRACK = 11;
         private const int APPCOMMAND_MEDIA_PREVIOUSTRACK = 12;
         private const int APPCOMMAND_MEDIA_PLAY_PAUSE = 14;
-        private const int WM_APPCOMMAND = 0x0319;
-        private CancellationTokenSource cancellationTokenSource;
-        private CoreAudioController audioController;
+        
+        
         private CoreAudioDevice defaultPlaybackDevice;
-        private System.Timers.Timer deviceCheckTimer;
+
+        
 
         SerialPortManager _serialPortManager = SerialPortManager.Instance;
         ActiveWindowTracker _activeWindowTracker = ActiveWindowTracker.Instance;
+        DeviceSearcher _deviceSearcher = DeviceSearcher.Instance;
+        AudioDeviceMonitor _audioDeviceMonitor = AudioDeviceMonitor.Instance;
         public App()
         {
             this.InitializeComponent();
-            RunFindDeviceInBackground();
-
-
             _serialPortManager.DataReceived += OnDataReceived;
-
-
-            _activeWindowTracker.StartTracking();
-
-            StartConnectionChecker();
-            // Inicjalizacja timera - jeśli potrzebujesz timera w środowisku niewizualnym, wielowątkowym lub w aplikacji konsolowej.
-            deviceCheckTimer = new System.Timers.Timer();
-            deviceCheckTimer.Interval = 1000; // Sprawdzanie co sekundę
-            deviceCheckTimer.Elapsed += OnDeviceCheckTimerElapsed;
-            deviceCheckTimer.Start();
-            audioController = new CoreAudioController();
-            defaultPlaybackDevice = audioController.DefaultPlaybackDevice;
-            
-
         }
 
-        private void RunFindDeviceInBackground()
+        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
-            CancellationToken token = cts.Token;
-            // Uruchamiamy FindDeviceAsync w tle za pomocą Task.Run, aby nie blokować głównego wątku UI
-            var task = Task.Run(async () =>
-            {
-                while (!token.IsCancellationRequested)
-                {
-                    try
-                    {
-                        // Wywołujemy FindDeviceAsync w tle
-                        string devicePort = await _serialPortManager.FindDeviceAsync();
-
-                        // Zaktualizowanie UI po zakończeniu operacji
-                        var dispatcherQueue = CoreApplication.MainView.DispatcherQueue;
-                        dispatcherQueue.TryEnqueue(() =>
-                        {
-                            if (!string.IsNullOrEmpty(devicePort))
-                            {
-                                Console.WriteLine($"Znaleziono urządzenie na porcie {devicePort}");
-                                cts.Cancel();
-
-                            }
-                            else
-                            {
-                                Console.WriteLine("Nie znaleziono urządzenia.");
-                                cts.Cancel();
-                            }
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        // Obsługuje wszelkie wyjątki, które mogą wystąpić podczas operacji
-                        var dispatcherQueue = CoreApplication.MainView.DispatcherQueue;
-                        dispatcherQueue.TryEnqueue(() =>
-                        {
-                            Console.WriteLine($"Błąd przy znajdowaniu urządzenia: {ex.Message}");
-                            cts.Cancel();
-                        });
-                    }
-                }
-                Console.WriteLine("Task was cancelled.");
-            }, token);
+            m_window = new MainWindow();
+            m_window.Activate();
+            _activeWindowTracker.Start();
+            _deviceSearcher.Start();
+            _audioDeviceMonitor.Start();
         }
-
-
-
 
         private void OnDataReceived(string data)
         {
@@ -195,6 +141,7 @@ namespace fasttool_modern
                             }
                             else if (action.Type == "multimedia")
                             {
+                                defaultPlaybackDevice = _audioDeviceMonitor.GetDefaultPlaybackDevice();
                                 //obsługa przycisków multimedialnych
                                 switch (action.DoAction)
                                 {
@@ -210,7 +157,7 @@ namespace fasttool_modern
                                     case "previous":
                                         TaskManager.SendMediaKey(APPCOMMAND_MEDIA_PREVIOUSTRACK);
                                         break;
-                                    case "volume up":
+                                    case "volume up": 
                                         ++defaultPlaybackDevice.Volume;
                                         break;
                                     case "volume down":
@@ -246,59 +193,8 @@ namespace fasttool_modern
 
             }
         }
-
-        private void StartConnectionChecker()
-        {
-            bool search = true;
-            cancellationTokenSource = new CancellationTokenSource();
-            Task.Run(() =>
-            {
-                while (!cancellationTokenSource.Token.IsCancellationRequested)
-                {
-                    if (_serialPortManager.AskConnection())
-                    {
-                        //statusLabel.Text = "Device: connected";
-                        //btnIconButton.Image = Properties.Resources.nazwa_ikony;
-                    }
-                    else { 
-                    }
-                    Console.WriteLine("Sprawdzanie w tle...");
-                Task.Delay(1000);
-                }
-            }, cancellationTokenSource.Token);
-        }
-
-        private void StopConnectionChecker()
-        {
-            cancellationTokenSource?.Cancel();
-        }
-
-        //do sprawdzenia zmiany urządzenia audio
-        private void OnDeviceCheckTimerElapsed(object sender, ElapsedEventArgs e)
-        {
-            if (audioController != null)
-            {
-                var currentDefaultDevice = audioController.DefaultPlaybackDevice;
-
-                if (currentDefaultDevice.Id != defaultPlaybackDevice.Id)
-                {
-                    defaultPlaybackDevice = currentDefaultDevice;
-                    Console.WriteLine("Domyślne urządzenie odtwarzania zmienione.");
-                }
-            }
-        }
+        
         
 
-        
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
-        {
-           
-            m_window = new MainWindow();
-            m_window.Activate();
-        }
-
-     
-
-        private Window m_window;
     }
 }
