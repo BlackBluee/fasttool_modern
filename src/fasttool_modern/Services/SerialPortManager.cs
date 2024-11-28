@@ -17,9 +17,7 @@ namespace fasttool_modern.Services
 
         private static SerialPortManager instance;
 
-        private SerialPortManager() { 
-        //FindDeviceAsync();
-        }
+        private SerialPortManager() {}
 
         public static SerialPortManager Instance
         {
@@ -28,6 +26,7 @@ namespace fasttool_modern.Services
                 if (instance == null)
                 {
                     instance = new SerialPortManager();
+                    var responder = SerialPortResponder.Instance;
                 }
                 return instance;
             }

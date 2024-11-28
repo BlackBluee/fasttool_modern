@@ -14,7 +14,7 @@ namespace fasttool_modern.Services
         [DllImport("user32.dll")]
         private static extern bool GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
         private Timer checkTimer;
-        public string previousProcessName { get; set; } = "";
+        public string previousProcessName { get; set; } = string.Empty;
         public List<string> availableApps = new List<string>();
         SerialPortManager serialPortManager = SerialPortManager.Instance;
         private static ActiveWindowTracker instance;
@@ -49,7 +49,12 @@ namespace fasttool_modern.Services
             Console.WriteLine("Tracking stopped.");
         }
 
-        public void CheckActiveWindow(object sender, EventArgs e)
+        public string GetPreviousProcessName()
+        {
+            return previousProcessName;
+        }
+
+        private void CheckActiveWindow(object sender, EventArgs e)
         {
             IntPtr handle = GetForegroundWindow();
             GetWindowThreadProcessId(handle, out uint processId);
