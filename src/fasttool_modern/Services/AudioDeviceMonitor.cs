@@ -13,7 +13,7 @@ namespace fasttool_modern.Services
 {
     public class AudioDeviceMonitor : IBackgroundTask
     {
-        private CancellationTokenSource cancellationTokenSource;
+
         private CoreAudioController audioController;
         private CoreAudioDevice defaultPlaybackDevice;
 
