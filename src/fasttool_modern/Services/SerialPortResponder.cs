@@ -81,16 +81,34 @@ namespace fasttool_modern.Services
                 }
                 else if (type == "ButtonPress")
                 {
+                    string pressedButton = string.Empty;
+                    if (deviceInfo.ContainsKey("AButton"))
+                    {
+                        pressedButton = deviceInfo["AButton"].Trim();
+                    }
+                    else if (deviceInfo.ContainsKey("Button"))
+                    {
+                        pressedButton = deviceInfo["Button"].Trim();
+                    } 
+                    
 
-                    string pressedButton = deviceInfo.ContainsKey("Button") ? deviceInfo["Button"].Trim() : string.Empty;
-
-                    previousProcessName = _activeWindowTracker.GetPreviousProcessName();
+                    string processName = _activeWindowTracker.GetCurrentProcessName();
                     // Wyszukanie danych przycisku na podstawie numeru przycisku
                     using (var context = new AppDbContext())
                     {
-                        var profile = context.Profiles.FirstOrDefault(p => p.ProfileName == previousProcessName);
+                        string profileID = string.Empty;
+                        var profile = context.Profiles.FirstOrDefault(p => p.ProfileName == processName);
+                        
+                        if (deviceInfo.ContainsKey("Button"))
+                        {
+                            profileID = "HOME";
+                        }
+                        else if (deviceInfo.ContainsKey("AButton") && profile != null)
+                        {
+                            profileID = profile.ProfileID;
+                        }
                         var buttonData = context.ButtonDatas
-                            .Where(b => b.ButtonID == pressedButton && b.ProfileID == "HOME")
+                            .Where(b => b.ButtonID == pressedButton && b.ProfileID == profileID)
                             .SingleOrDefault();
                         var action = buttonData == null ? null : context.Actions.SingleOrDefault(a => a.ActionID == buttonData.ActionID);
 

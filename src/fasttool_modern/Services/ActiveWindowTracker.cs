@@ -18,6 +18,7 @@ namespace fasttool_modern.Services
         private static extern bool GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
         private Timer checkTimer;
         public string previousProcessName { get; set; } = string.Empty;
+        public string currentProcessName { get; set; } = string.Empty;
         public List<string> availableApps = new List<string>();
         SerialPortManager serialPortManager = SerialPortManager.Instance;
         private static ActiveWindowTracker instance;
@@ -57,6 +58,31 @@ namespace fasttool_modern.Services
             return previousProcessName;
         }
 
+        public string GetCurrentProcessName()
+        {
+            
+            IntPtr hWnd = GetForegroundWindow();
+            if (hWnd == IntPtr.Zero)
+            {
+                Debug.WriteLine("Brak aktywnego okna.");
+                return null;
+            }
+
+            uint processId;
+            GetWindowThreadProcessId(hWnd, out processId);
+            Process process = Process.GetProcessById((int)processId);
+            if (process == null)
+            {
+                Debug.WriteLine("Nie można uzyskać procesu dla aktywnego okna.");
+                return null;
+            }
+
+            Debug.WriteLine($"Aktualny proces: {process.ProcessName}");
+            return process.ProcessName;
+        
+        }
+
+
         private void CheckActiveWindow(object sender, EventArgs e)
         {
             IntPtr handle = GetForegroundWindow();
@@ -64,7 +90,7 @@ namespace fasttool_modern.Services
             try
             {
                 Process process = Process.GetProcessById((int)processId);
-                string currentProcessName = process.ProcessName;
+                currentProcessName = process.ProcessName;
                 if (currentProcessName != previousProcessName)
                 {
                     previousProcessName = currentProcessName;
@@ -89,12 +115,18 @@ namespace fasttool_modern.Services
             using (var context = new AppDbContext())
             {
                 context.Database.EnsureCreated();
-                var buttons = context.ButtonDatas.Where(b => b.DeviceID == selectedDid && b.ProfileID == process).ToList();
-
+                var profile = context.Profiles.FirstOrDefault(p => p.ProfileName == process);
+                
+                if (profile == null)
+                {
+                    Console.WriteLine($"Profile with name '{process}' not found.");
+                    // Handle the case where the profile is not found
+                    return;
+                }
+                var buttons = context.ButtonDatas.Where(b => b.DeviceID == selectedDid && b.ProfileID == profile.ProfileID).ToList();
                 foreach (var button in buttons)
                 {
-                    BitmapImage bitmap = new BitmapImage(new Uri($"ms-appx:///Assets/{button.Image}.png"));
-                    Microsoft.UI.Xaml.Controls.Image image1 = new Microsoft.UI.Xaml.Controls.Image();
+                   
                     serialPortManager.Send("Type:AImage,Button:" + button.ButtonID.ToString() + ", location: /" + button.Image + ".bin");
                 }
             }

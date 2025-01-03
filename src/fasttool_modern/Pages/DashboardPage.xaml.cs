@@ -163,7 +163,10 @@ namespace fasttool_modern
                 {
                     BitmapImage bitmap = new BitmapImage(new Uri($"ms-appx:///Assets/{button.Image}.png"));
                     Microsoft.UI.Xaml.Controls.Image image1 = new Microsoft.UI.Xaml.Controls.Image();
-                    serialPortManager.Send("Type:Image,Button:" + button.ButtonID.ToString() + ", location: /" + button.Image + ".bin");
+                    if (selectedPid == "HOME")
+                    {
+                        serialPortManager.Send("Type:Image,Button:" + button.ButtonID.ToString() + ", location: /" + button.Image + ".bin");
+                    }
                     //wzorzec factory
                     var buttonControl = GetButtonControl(button.ButtonID);
                     if (buttonControl != null)
