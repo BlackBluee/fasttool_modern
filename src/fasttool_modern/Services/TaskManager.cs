@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using Windows.System;
 using Windows.UI.Input.Preview.Injection;
+
 
 namespace fasttool_modern.Services
 {
     internal class TaskManager
     {
-        
         private const int APPCOMMAND_MEDIA_NEXTTRACK = 11;
         private const int APPCOMMAND_MEDIA_PREVIOUSTRACK = 12;
         private const int APPCOMMAND_MEDIA_PLAY_PAUSE = 14;
@@ -29,7 +25,10 @@ namespace fasttool_modern.Services
 
         [DllImport("user32.dll")]
         private static extern int GetWindowTextLength(IntPtr hWnd);
-        public void RunExternalApplication(string path)
+
+        private static AudioDeviceMonitor _audioDeviceMonitor = AudioDeviceMonitor.Instance;
+
+        public static void RunExternalApplication(string path)
         {
             try
             {
@@ -37,37 +36,78 @@ namespace fasttool_modern.Services
             }
             catch (Exception ex)
             {
-                //MessageBox.Show($"Błąd uruchamiania aplikacji: {ex.Message}");
+                Console.WriteLine($"Błąd uruchamiania aplikacji: {ex.Message}");
             }
         }
+
         public static void SendMediaKey(int key)
         {
             IntPtr hWnd = GetForegroundWindow();
             SendMessageW(hWnd, WM_APPCOMMAND, hWnd, (IntPtr)(key << 16));
         }
 
-        public void SimulateKeyPress(VirtualKey key)
+        public static void MultimediaCommand(string command)
+        {
+            var defaultPlaybackDevice = _audioDeviceMonitor.GetDefaultPlaybackDevice();
+            //obsługa przycisków multimedialnych
+            switch (command)
+            {
+                case "play/pause":
+                    SendMediaKey(APPCOMMAND_MEDIA_PLAY_PAUSE);
+                    break;
+                case "mute/unmute":
+                    defaultPlaybackDevice.Mute(!defaultPlaybackDevice.IsMuted);
+                    break;
+                case "next":
+                    SendMediaKey(APPCOMMAND_MEDIA_NEXTTRACK);
+                    break;
+                case "previous":
+                    SendMediaKey(APPCOMMAND_MEDIA_PREVIOUSTRACK);
+                    break;
+                case "volume up":
+                    ++defaultPlaybackDevice.Volume;
+                    break;
+                case "volume down":
+                    --defaultPlaybackDevice.Volume;
+                    break;
+                default:
+                    Console.WriteLine($"Nieobsługiwana akcja multimedialna: {command}", "Błąd");
+                    break;
+            }
+        }
+
+        public static void SimulateKeyPress(string key)
         {
             var inputInjector = InputInjector.TryCreate();
 
             if (inputInjector != null)
             {
-                // Utwórz listę klawiszy do naciśnięcia
+                ushort virtualKey;
+                if (!ushort.TryParse(key, out virtualKey))
+                {
+                    throw new ArgumentException("Nieprawidłowy klucz: " + key);
+                }
+
                 var downEvent = new InjectedInputKeyboardInfo
                 {
-                    VirtualKey = (ushort)key,
+                    VirtualKey = virtualKey,
                     KeyOptions = InjectedInputKeyOptions.None
                 };
 
                 var upEvent = new InjectedInputKeyboardInfo
                 {
-                    VirtualKey = (ushort)key,
+                    VirtualKey = virtualKey,
                     KeyOptions = InjectedInputKeyOptions.KeyUp
                 };
 
-                // Wstrzykuj klawisz jako naciśnięcie i zwolnienie
                 inputInjector.InjectKeyboardInput(new[] { downEvent, upEvent });
+            }
+            else
+            {
+                throw new InvalidOperationException("Nie udało się utworzyć InputInjector.");
             }
         }
     }
+
+
 }

@@ -6,7 +6,7 @@ using System.Linq;
 using Persistance;
 using fasttool_modern.Helpers;
 using fasttool_modern.Services;
-using static System.Net.Mime.MediaTypeNames;
+
 
 namespace fasttool_modern
 {
@@ -19,7 +19,6 @@ namespace fasttool_modern
         string selectedPid = "HOME";
         string selectedAid = string.Empty;
         string selectedImage = "image";
-        
 
         public DashboardPage()
         {
@@ -34,8 +33,6 @@ namespace fasttool_modern
             ComboBoxProfiles.SelectedIndex = 0;
             bt1.IsEnabled = false;
             modifyButton = 1;
-          
-
         }
 
         public void InsertDevice(string did, string model, float version, string port)
@@ -145,7 +142,6 @@ namespace fasttool_modern
         }
         private void LoadPanel() 
         {
-            
             if(selectedPid == "HOME")
             {
                 bt7.IsEnabled = false;
@@ -174,10 +170,8 @@ namespace fasttool_modern
                         image1.Source = bitmap;
                         buttonControl.Content = image1;
                     }
-
                 }
             }
-
         }
         private Button GetButtonControl(string buttonId)
         {
@@ -215,7 +209,6 @@ namespace fasttool_modern
             GetProfileID();
             LoadButton();
             LoadPanel();
-            
         }
             private void LoadButton() 
         {
@@ -229,9 +222,7 @@ namespace fasttool_modern
                     if (button != null)
                     {
                         output.Text = $"Device ID: {button.DeviceID}, Profile ID: {button.ProfileID}, Button ID: {button.ButtonID}, Action ID: {button.ActionID}, Image: {button.Image}, Color: {button.Color}";
-
                         selectedImage = button.Image;
-                        
                         var action = context.Actions.Where(a => a.ActionID == button.ActionID).SingleOrDefault();
                         if (action != null)
                         {

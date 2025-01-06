@@ -1,24 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using fasttool_modern.Services.Interfaces;
 using System.Timers;
-using AudioSwitcher.AudioApi;
 using AudioSwitcher.AudioApi.CoreAudio;
-using System.Threading;
+
 
 namespace fasttool_modern.Services
 {
     public class AudioDeviceMonitor : IBackgroundTask
     {
-
         private CoreAudioController audioController;
         private CoreAudioDevice defaultPlaybackDevice;
-
-        
-
         private static AudioDeviceMonitor instance;
         System.Timers.Timer checkTime;
         public AudioDeviceMonitor() {

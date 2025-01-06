@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Timers;
 using fasttool_modern.Services.Interfaces;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Persistance;
 
 namespace fasttool_modern.Services

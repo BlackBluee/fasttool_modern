@@ -2,10 +2,7 @@
 using Persistance;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace fasttool_modern.Services
 {
@@ -13,18 +10,11 @@ namespace fasttool_modern.Services
     {
         private static SerialPortResponder instance;
         private SerialPortManager _serialPortManager = SerialPortManager.Instance;
-        AudioDeviceMonitor _audioDeviceMonitor = AudioDeviceMonitor.Instance;
         ActiveWindowTracker _activeWindowTracker = ActiveWindowTracker.Instance;
-        
-        private const int APPCOMMAND_MEDIA_NEXTTRACK = 11;
-        private const int APPCOMMAND_MEDIA_PREVIOUSTRACK = 12;
-        private const int APPCOMMAND_MEDIA_PLAY_PAUSE = 14;
         private CoreAudioDevice defaultPlaybackDevice;
-        public string previousProcessName { get; set; } = string.Empty;
         private SerialPortResponder() 
         {
             _serialPortManager.DataReceived += OnDataReceived;
-
         }
         public static SerialPortResponder Instance
         {
@@ -38,32 +28,38 @@ namespace fasttool_modern.Services
             }
         }
         
-
         private void OnDataReceived(string data)
         {
             ProcessResponse(data);
         }
         private void ProcessResponse(string response)
         {
+            var actionHandlers = new Dictionary<string, Action<string>>()
+            {
+                { "open app", TaskManager.RunExternalApplication },
+                { "hotkey", TaskManager.SimulateKeyPress },
+                { "multimedia", TaskManager.MultimediaCommand }
+            };
+
             // Rozdzielenie i przetworzenie otrzymanych informacji
             string[] parts = response.Split(',');
-            Dictionary<string, string> deviceInfo = new Dictionary<string, string>();
+            Dictionary<string, string> deviceData = new Dictionary<string, string>();
             foreach (string part in parts)
             {
                 string[] keyValue = part.Split(':');
                 if (keyValue.Length == 2)
                 {
-                    deviceInfo[keyValue[0]] = keyValue[1];
+                    deviceData[keyValue[0]] = keyValue[1];
                 }
             }
-            if (deviceInfo.ContainsKey("Type"))
+            if (deviceData.ContainsKey("Type"))
             {
-                string type = deviceInfo["Type"];
+                string type = deviceData["Type"];
                 if (type == "DeviceInfo")
                 {
                     var did = "1";
-                    var model = deviceInfo.ContainsKey("Model") ? deviceInfo["Model"] : "Unknown";
-                    var version = deviceInfo.ContainsKey("Version") ? int.Parse(deviceInfo["Version"]) : 0;
+                    var model = deviceData.ContainsKey("Model") ? deviceData["Model"] : "Unknown";
+                    var version = deviceData.ContainsKey("Version") ? int.Parse(deviceData["Version"]) : 0;
                     //var version = "1.0";
                     var port = _serialPortManager.GetPortName();
                     try
@@ -82,15 +78,14 @@ namespace fasttool_modern.Services
                 else if (type == "ButtonPress")
                 {
                     string pressedButton = string.Empty;
-                    if (deviceInfo.ContainsKey("AButton"))
+                    if (deviceData.ContainsKey("AButton"))
                     {
-                        pressedButton = deviceInfo["AButton"].Trim();
+                        pressedButton = deviceData["AButton"].Trim();
                     }
-                    else if (deviceInfo.ContainsKey("Button"))
+                    else if (deviceData.ContainsKey("Button"))
                     {
-                        pressedButton = deviceInfo["Button"].Trim();
-                    } 
-                    
+                        pressedButton = deviceData["Button"].Trim();
+                    }
 
                     string processName = _activeWindowTracker.GetCurrentProcessName();
                     // Wyszukanie danych przycisku na podstawie numeru przycisku
@@ -98,12 +93,12 @@ namespace fasttool_modern.Services
                     {
                         string profileID = string.Empty;
                         var profile = context.Profiles.FirstOrDefault(p => p.ProfileName == processName);
-                        
-                        if (deviceInfo.ContainsKey("Button"))
+
+                        if (deviceData.ContainsKey("Button"))
                         {
                             profileID = "HOME";
                         }
-                        else if (deviceInfo.ContainsKey("AButton") && profile != null)
+                        else if (deviceData.ContainsKey("AButton") && profile != null)
                         {
                             profileID = profile.ProfileID;
                         }
@@ -112,79 +107,32 @@ namespace fasttool_modern.Services
                             .SingleOrDefault();
                         var action = buttonData == null ? null : context.Actions.SingleOrDefault(a => a.ActionID == buttonData.ActionID);
 
-
-
                         if (!object.ReferenceEquals(buttonData, null))
                         {
-                            if (action.Type == "open app")
+                            if (actionHandlers.TryGetValue(action.Type, out var handler))
                             {
-
-                                try
-                                {
-                                    Process.Start(action.DoAction);
-                                }
-                                catch (Exception ex)
-                                {
-                                    //MessageBox.Show($"Błąd uruchamiania aplikacji: {ex.Message}");
-                                }
-
+                                handler(action.DoAction);
                             }
-                            else if (action.Type == "hotkey")
+                            else
                             {
-                                //TaskManager.SimulateKeyPress(action.DoAction);
+                                Console.WriteLine($"Unknown Type: {action.Type}, unable to process.");
                             }
-                            else if (action.Type == "multimedia")
-                            {
-                                defaultPlaybackDevice = _audioDeviceMonitor.GetDefaultPlaybackDevice();
-                                //obsługa przycisków multimedialnych
-                                switch (action.DoAction)
-                                {
-                                    case "play/pause":
-                                        TaskManager.SendMediaKey(APPCOMMAND_MEDIA_PLAY_PAUSE);
-                                        break;
-                                    case "mute/unmute":
-                                        defaultPlaybackDevice.Mute(!defaultPlaybackDevice.IsMuted);
-                                        break;
-                                    case "next":
-                                        TaskManager.SendMediaKey(APPCOMMAND_MEDIA_NEXTTRACK);
-                                        break;
-                                    case "previous":
-                                        TaskManager.SendMediaKey(APPCOMMAND_MEDIA_PREVIOUSTRACK);
-                                        break;
-                                    case "volume up":
-                                        ++defaultPlaybackDevice.Volume;
-                                        break;
-                                    case "volume down":
-                                        --defaultPlaybackDevice.Volume;
-                                        break;
-                                    default:
-                                        //MessageBox.Show($"Nieobsługiwana akcja multimedialna: {buttonData.Action}", "Błąd");
-                                        break;
-                                }
-                            }
-
                         }
-
-
-
-
                         else if (type == "winSound")
                         {
-                            int valueSound = deviceInfo.ContainsKey("Value") ? int.Parse(deviceInfo["Value"]) : 0;
+                            int valueSound = deviceData.ContainsKey("Value") ? int.Parse(deviceData["Value"]) : 0;
                             defaultPlaybackDevice.Volume = valueSound;
                         }
                         else if (type == "winBrightness")
                         {
-                            int valueBrightness = deviceInfo.ContainsKey("Value") ? int.Parse(deviceInfo["Value"]) : 0;
-
+                            int valueBrightness = deviceData.ContainsKey("Value") ? int.Parse(deviceData["Value"]) : 0;
                         }
                         else
                         {
-                            //MessageBox.Show($"Nieobsługiwany typ wiadomości: {type}", "Błąd");
+                            Console.WriteLine($"Nieobsługiwany typ wiadomości: {type}", "Błąd");
                         }
                     }
                 }
-
             }
         }
     }

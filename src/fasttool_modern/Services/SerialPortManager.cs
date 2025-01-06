@@ -94,25 +94,21 @@ namespace fasttool_modern.Services
             {
                 if (!serialPort.IsOpen)
                 {
-                    serialPort.Open(); // Otwórz port
+                    serialPort.Open(); 
                     GetInfoDevice();
-                }
-                else
-                {
-                    //MessageBox.Show("Port jest już otwarty.");
                 }
             }
             catch (UnauthorizedAccessException)
             {
-                //MessageBox.Show("Błąd: Port jest już używany przez inną aplikację.");
+                Console.WriteLine("Błąd: Port jest już używany przez inną aplikację.");
             }
             catch (IOException ioEx)
             {
-                //MessageBox.Show("Błąd: Problem z wejściem/wyjściem - " + ioEx.Message);
+                Console.WriteLine("Błąd: Problem z wejściem/wyjściem - " + ioEx.Message);
             }
             catch (Exception ex)
             {
-                //MessageBox.Show("Błąd: " + ex.Message);
+                Console.WriteLine("Błąd: " + ex.Message);
             }
 
 
@@ -149,12 +145,10 @@ namespace fasttool_modern.Services
             }
             catch (IOException ex)
             {
-                // Handle the exception (e.g., log the error, attempt to reconnect, etc.)
                 Console.WriteLine($"IOException: {ex.Message}");
             }
             catch (InvalidOperationException ex)
             {
-                // Handle the exception (e.g., log the error, ensure the port is open, etc.)
                 Console.WriteLine($"InvalidOperationException: {ex.Message}");
             }
         }
