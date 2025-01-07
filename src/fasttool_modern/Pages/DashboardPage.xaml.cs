@@ -6,6 +6,7 @@ using System.Linq;
 using Persistance;
 using fasttool_modern.Helpers;
 using fasttool_modern.Services;
+using System.Diagnostics;
 
 
 namespace fasttool_modern
@@ -251,6 +252,34 @@ namespace fasttool_modern
                 output.Text = e.Message;
             }
         }
+
+        private void ComboBoxType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedItem = ComboBoxType.SelectedItem as ComboBoxItem;
+            string comboBoxValue = selectedItem?.Content.ToString() ?? "Nie wybrano opcji";
+            if (comboBoxValue == "open app" || comboBoxValue == "hotkey")
+            {
+                ComboBoxMultimedia.Visibility = Visibility.Collapsed;
+                TextAction.Visibility = Visibility.Visible;
+                ActionButton.Visibility = Visibility.Visible;
+                if (comboBoxValue == "open app")
+                {
+                    ActionButton.Content = "Choose";
+                }
+                else if (comboBoxValue == "hotkey")
+                {
+                    ActionButton.Content = "Record";
+                }
+            }
+            else if (comboBoxValue == "multimedia")
+            {
+                ComboBoxMultimedia.Visibility = Visibility.Visible;
+                TextAction.Visibility = Visibility.Collapsed;
+                ActionButton.Visibility = Visibility.Collapsed;
+            }
+        }
+
+
 
         private void SaveButton(object sender, RoutedEventArgs e)
         {

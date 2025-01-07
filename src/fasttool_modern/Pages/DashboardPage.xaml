@@ -43,13 +43,21 @@
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Action:" FontSize="20"></TextBlock>
-                <ComboBox x:Name="ComboBoxType" Width="200" Margin="10,0,0,10">
+                    <ComboBox x:Name="ComboBoxType" SelectionChanged="ComboBoxType_SelectionChanged" Width="200" Margin="10,0,0,10">
                         <ComboBoxItem Content="open app" />
                         <ComboBoxItem Content="multimedia" />
                         <ComboBoxItem Content="hotkey" />
                     </ComboBox>
                 <TextBox x:Name="TextAction" Width="320" Margin="10,0,32,10"></TextBox>
-                <Button Width="100" Margin="64,0,0,10" Content="Choose"></Button>
+                    <ComboBox x:Name="ComboBoxMultimedia" Width="320" Margin="10,0,0,10" Visibility="Collapsed">
+                        <ComboBoxItem Content="play/pause" />
+                        <ComboBoxItem Content="mute/unmute" />
+                        <ComboBoxItem Content="next" />
+                        <ComboBoxItem Content="previous" />
+                        <ComboBoxItem Content="volume up" />
+                        <ComboBoxItem Content="volume down" />
+                    </ComboBox>
+                    <Button x:Name="ActionButton" Width="100" Margin="64,0,0,10" Content="Choose"></Button>
             </StackPanel>
         </StackPanel>
 
