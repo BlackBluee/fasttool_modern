@@ -83,8 +83,15 @@ namespace fasttool_modern
             selectedAid = StringGenerator.GenerateRandomString(4);
             using (var context = new AppDbContext())
             {
+                var stringAction = TextAction.Text;
+                if(comboBoxValue == "multimedia")
+                {
+                    var selectedItemMultimedia = ComboBoxMultimedia.SelectedItem as ComboBoxItem;
+                    string ComboBoxMultimediaValue = selectedItemMultimedia?.Content.ToString() ?? "None";
+                    stringAction = ComboBoxMultimediaValue;
+                }
                 context.Database.EnsureCreated();
-                context.Actions.Add(new Action { ActionID = selectedAid, Type = comboBoxValue, DoAction = TextAction.Text, ButtonID = modifyButton.ToString(), ProfileID = selectedPid, Queue = 0});
+                context.Actions.Add(new Action { ActionID = selectedAid, Type = comboBoxValue, DoAction = stringAction, ButtonID = modifyButton.ToString(), ProfileID = selectedPid, Queue = 0});
                 context.SaveChanges();
             }
         }
@@ -238,13 +245,20 @@ namespace fasttool_modern
                                     break;
                                 }
                             }
+                            foreach (ComboBoxItem item in ComboBoxMultimedia.Items)
+                            {
+                                if (action.DoAction != null && item.Content.ToString() == action.DoAction)
+                                {
+                                    ComboBoxMultimedia.SelectedItem = item;
+                                    break;
+                                }
+                            }
                         }
                         else
                         {
                             TextAction.Text = "Akcja nie znaleziona";
                         }
                     }
-
                 }
             }
             catch (Exception e)
