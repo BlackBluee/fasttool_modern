@@ -57,7 +57,7 @@
                         <ComboBoxItem Content="volume up" />
                         <ComboBoxItem Content="volume down" />
                     </ComboBox>
-                    <Button x:Name="ActionButton" Width="100" Margin="64,0,0,10" Content="Choose"></Button>
+                    <Button x:Name="ActionButton" Click="ActionButton_Click" Width="100" Margin="64,0,0,10" Content="Choose"></Button>
             </StackPanel>
         </StackPanel>
 

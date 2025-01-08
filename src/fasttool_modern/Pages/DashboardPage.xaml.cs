@@ -7,6 +7,8 @@ using Persistance;
 using fasttool_modern.Helpers;
 using fasttool_modern.Services;
 using System.Diagnostics;
+using Windows.Storage.Pickers;
+using Windows.Storage;
 
 
 namespace fasttool_modern
@@ -15,6 +17,8 @@ namespace fasttool_modern
     {
         int modifyButton = 1;
         SerialPortManager serialPortManager = SerialPortManager.Instance;
+        KeyShortcutRecorder _shortcutRecorder = KeyShortcutRecorder.Instance;
+        private bool _isRecording = false;
 
         string selectedDid = "1";
         string selectedPid = "HOME";
@@ -34,6 +38,7 @@ namespace fasttool_modern
             ComboBoxProfiles.SelectedIndex = 0;
             bt1.IsEnabled = false;
             modifyButton = 1;
+            _shortcutRecorder.SetTextBox(TextAction);
         }
 
         public void InsertDevice(string did, string model, float version, string port)
@@ -293,6 +298,52 @@ namespace fasttool_modern
             }
         }
 
+        private async void ActionButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedItem = ComboBoxType.SelectedItem as ComboBoxItem;
+            string comboBoxValue = selectedItem?.Content.ToString() ?? "Nie wybrano opcji";
+            if (comboBoxValue == "open app")
+            {
+                var picker = new FileOpenPicker
+                {
+                    ViewMode = PickerViewMode.List,
+                    SuggestedStartLocation = PickerLocationId.Desktop
+                };
+
+                picker.FileTypeFilter.Add("*");
+
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+                StorageFile file = await picker.PickSingleFileAsync();
+
+                if (file != null)
+                {
+                    TextAction.Text = file.Path;
+                }
+                else
+                {
+                    TextAction.Text = "Nie wybrano pliku.";
+                }
+            }
+            else if (comboBoxValue == "hotkey")
+            {
+                if (_isRecording)
+            {
+                _shortcutRecorder.StopRecording();
+                this.KeyDown -= _shortcutRecorder.OnKeyDown;
+                ActionButton.Content = "Record"; 
+            }
+            else
+            {
+                _shortcutRecorder.StartRecording();
+                this.KeyDown += _shortcutRecorder.OnKeyDown;
+                ActionButton.Content = "Stop"; 
+            }
+
+            _isRecording = !_isRecording; 
+            }
+        }
 
 
         private void SaveButton(object sender, RoutedEventArgs e)

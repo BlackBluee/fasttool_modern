@@ -75,39 +75,5 @@ namespace fasttool_modern.Services
                     break;
             }
         }
-
-        public static void SimulateKeyPress(string key)
-        {
-            var inputInjector = InputInjector.TryCreate();
-
-            if (inputInjector != null)
-            {
-                ushort virtualKey;
-                if (!ushort.TryParse(key, out virtualKey))
-                {
-                    throw new ArgumentException("Nieprawidłowy klucz: " + key);
-                }
-
-                var downEvent = new InjectedInputKeyboardInfo
-                {
-                    VirtualKey = virtualKey,
-                    KeyOptions = InjectedInputKeyOptions.None
-                };
-
-                var upEvent = new InjectedInputKeyboardInfo
-                {
-                    VirtualKey = virtualKey,
-                    KeyOptions = InjectedInputKeyOptions.KeyUp
-                };
-
-                inputInjector.InjectKeyboardInput(new[] { downEvent, upEvent });
-            }
-            else
-            {
-                throw new InvalidOperationException("Nie udało się utworzyć InputInjector.");
-            }
-        }
     }
-
-
 }

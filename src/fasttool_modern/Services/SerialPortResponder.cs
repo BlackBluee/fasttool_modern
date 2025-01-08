@@ -1,4 +1,5 @@
 ﻿using AudioSwitcher.AudioApi.CoreAudio;
+using fasttool_modern.Helpers;
 using Persistance;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace fasttool_modern.Services
         private static SerialPortResponder instance;
         private SerialPortManager _serialPortManager = SerialPortManager.Instance;
         ActiveWindowTracker _activeWindowTracker = ActiveWindowTracker.Instance;
+        KeyShortcutRecorder _keyShortcutRecorder = KeyShortcutRecorder.Instance;
         private CoreAudioDevice defaultPlaybackDevice;
         private SerialPortResponder() 
         {
@@ -37,7 +39,7 @@ namespace fasttool_modern.Services
             var actionHandlers = new Dictionary<string, Action<string>>()
             {
                 { "open app", TaskManager.RunExternalApplication },
-                { "hotkey", TaskManager.SimulateKeyPress },
+                { "hotkey", _keyShortcutRecorder.PlayRecordedShortcut },
                 { "multimedia", TaskManager.MultimediaCommand }
             };
 

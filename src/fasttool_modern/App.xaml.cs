@@ -6,7 +6,7 @@ namespace fasttool_modern
 {
     public partial class App : Application
     {
-        private Window m_window;
+        public static Window MainWindow { get; private set; }
 
         ActiveWindowTracker _activeWindowTracker = ActiveWindowTracker.Instance;
         DeviceSearcher _deviceSearcher = DeviceSearcher.Instance;
@@ -19,8 +19,12 @@ namespace fasttool_modern
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new MainWindow();
-            m_window.Activate();
+            MainWindow = new MainWindow();
+            MainWindow.Activate();
+            InitializeServices();
+        }
+        private void InitializeServices()
+        {
             _activeWindowTracker.Start();
             _deviceSearcher.Start();
             _audioDeviceMonitor.Start();
