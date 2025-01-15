@@ -75,6 +75,7 @@ namespace fasttool_modern.Services
                     }
                     catch (Exception e)
                     {
+                        Logger.Instance.LogError("Błąd", e);
                     }
                 }
                 else if (type == "ButtonPress")

@@ -73,11 +73,11 @@ namespace fasttool_modern.Services
             }
             catch (TimeoutException)
             {
-                Console.WriteLine($"Timeout na porcie {portName}");
+                Logger.Instance.LogWarning($"Timeout na porcie {portName}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Błąd na porcie {portName}: {ex.Message}");
+                Logger.Instance.LogError($"Błąd na porcie {portName}", ex);
             }
             devicePortName = "";
             return null;
@@ -100,15 +100,15 @@ namespace fasttool_modern.Services
             }
             catch (UnauthorizedAccessException)
             {
-                Console.WriteLine("Błąd: Port jest już używany przez inną aplikację.");
+                Logger.Instance.LogWarning("Błąd: Port jest już używany przez inną aplikację.");
             }
             catch (IOException ioEx)
             {
-                Console.WriteLine("Błąd: Problem z wejściem/wyjściem - " + ioEx.Message);
+                Logger.Instance.LogError("Błąd: Problem z wejściem/wyjściem", ioEx);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Błąd: " + ex.Message);
+                Logger.Instance.LogError("Błąd ", ex);
             }
 
 
@@ -145,11 +145,11 @@ namespace fasttool_modern.Services
             }
             catch (IOException ex)
             {
-                Console.WriteLine($"IOException: {ex.Message}");
+                Logger.Instance.LogError($"IOException", ex);
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"InvalidOperationException: {ex.Message}");
+                Logger.Instance.LogError($"InvalidOperationException", ex);
             }
         }
 
