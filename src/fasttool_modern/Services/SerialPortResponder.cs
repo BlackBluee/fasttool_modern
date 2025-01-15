@@ -75,6 +75,7 @@ namespace fasttool_modern.Services
                     }
                     catch (Exception e)
                     {
+                        Logger.Instance.LogError("Błąd", e);
                     }
                 }
                 else if (type == "ButtonPress")
@@ -117,7 +118,7 @@ namespace fasttool_modern.Services
                             }
                             else
                             {
-                                Console.WriteLine($"Unknown Type: {action.Type}, unable to process.");
+                                Logger.Instance.LogWarning($"Unknown Type: {action.Type}, unable to process.");
                             }
                         }
                         else if (type == "winSound")
@@ -131,7 +132,7 @@ namespace fasttool_modern.Services
                         }
                         else
                         {
-                            Console.WriteLine($"Nieobsługiwany typ wiadomości: {type}", "Błąd");
+                            Logger.Instance.LogWarning($"Nieobsługiwany typ wiadomości: {type}");
                         }
                     }
                 }

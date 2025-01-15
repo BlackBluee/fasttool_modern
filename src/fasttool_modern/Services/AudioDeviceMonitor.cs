@@ -40,7 +40,7 @@ namespace fasttool_modern.Services
                 if (currentDefaultDevice.Id != defaultPlaybackDevice.Id)
                 {
                     defaultPlaybackDevice = currentDefaultDevice;
-                    Console.WriteLine("Domyślne urządzenie odtwarzania zmienione.");
+                    Logger.Instance.LogInfo("Domyślne urządzenie odtwarzania zmienione.");
                 }
             }
         }

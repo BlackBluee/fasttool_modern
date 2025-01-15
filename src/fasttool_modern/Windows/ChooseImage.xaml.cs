@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -39,7 +40,7 @@ namespace fasttool_modern
             }
             catch (Exception ex)
             {
-                outText.Text = ($"B³¹d ³adowania plików: {ex.Message}");
+                Logger.Instace.
             }
         }
 

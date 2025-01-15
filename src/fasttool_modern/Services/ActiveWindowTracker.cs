@@ -42,14 +42,14 @@ namespace fasttool_modern.Services
         }
         public void Start()
         {
-            checkTimer.Start(); 
-            Console.WriteLine("Tracking started.");
+            checkTimer.Start();
+            Logger.Instance.LogInfo("Tracking started.");
         }
 
         public void Stop()
         {
-            checkTimer.Stop(); 
-            Console.WriteLine("Tracking stopped.");
+            checkTimer.Stop();
+            Logger.Instance.LogInfo("Tracking stopped.");
         }
 
         public string GetPreviousProcessName()
@@ -63,7 +63,7 @@ namespace fasttool_modern.Services
             IntPtr hWnd = GetForegroundWindow();
             if (hWnd == IntPtr.Zero)
             {
-                Debug.WriteLine("Brak aktywnego okna.");
+                Logger.Instance.LogWarning("Brak aktywnego okna.");
                 return null;
             }
 
@@ -72,11 +72,11 @@ namespace fasttool_modern.Services
             Process process = Process.GetProcessById((int)processId);
             if (process == null)
             {
-                Debug.WriteLine("Nie można uzyskać procesu dla aktywnego okna.");
+                Logger.Instance.LogWarning("Nie można uzyskać procesu dla aktywnego okna.");
                 return null;
             }
 
-            Debug.WriteLine($"Aktualny proces: {process.ProcessName}");
+            Logger.Instance.LogInfo($"Aktualny proces: {process.ProcessName}");
             return process.ProcessName;
         
         }
@@ -118,8 +118,7 @@ namespace fasttool_modern.Services
                 
                 if (profile == null)
                 {
-                    Console.WriteLine($"Profile with name '{process}' not found.");
-                    // Handle the case where the profile is not found
+                    Logger.Instance.LogWarning($"Profile with name '{process}' not found.");
                     return;
                 }
                 var buttons = context.ButtonDatas.Where(b => b.DeviceID == selectedDid && b.ProfileID == profile.ProfileID).ToList();
