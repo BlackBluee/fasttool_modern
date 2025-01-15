@@ -36,7 +36,7 @@ namespace fasttool_modern.Services
             }
             catch (Exception ex)
             {
-                Logger.Instance.LogError($"Błąd uruchamiania aplikacji", ex);
+                Console.WriteLine($"Błąd uruchamiania aplikacji: {ex.Message}");
             }
         }
 
@@ -71,7 +71,7 @@ namespace fasttool_modern.Services
                     --defaultPlaybackDevice.Volume;
                     break;
                 default:
-                    Logger.Instance.LogWarning($"Nieobsługiwana akcja multimedialna: {command}");
+                    Console.WriteLine($"Nieobsługiwana akcja multimedialna: {command}", "Błąd");
                     break;
             }
         }

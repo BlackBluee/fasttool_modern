@@ -43,13 +43,13 @@ namespace fasttool_modern.Services
         public void Start()
         {
             checkTimer.Start(); 
-            Logger.Instance.LogInfo("Tracking started.");
+            Console.WriteLine("Tracking started.");
         }
 
         public void Stop()
         {
-            checkTimer.Stop();
-            Logger.Instance.LogInfo("Tracking stopped.");
+            checkTimer.Stop(); 
+            Console.WriteLine("Tracking stopped.");
         }
 
         public string GetPreviousProcessName()
@@ -63,7 +63,7 @@ namespace fasttool_modern.Services
             IntPtr hWnd = GetForegroundWindow();
             if (hWnd == IntPtr.Zero)
             {
-                Logger.Instance.LogWarning("Brak aktywnego okna.");
+                Debug.WriteLine("Brak aktywnego okna.");
                 return null;
             }
 
@@ -72,11 +72,11 @@ namespace fasttool_modern.Services
             Process process = Process.GetProcessById((int)processId);
             if (process == null)
             {
-                Logger.Instance.LogWarning("Nie można uzyskać procesu dla aktywnego okna.");
+                Debug.WriteLine("Nie można uzyskać procesu dla aktywnego okna.");
                 return null;
             }
 
-            Logger.Instance.LogInfo($"Aktualny proces: {process.ProcessName}");
+            Debug.WriteLine($"Aktualny proces: {process.ProcessName}");
             return process.ProcessName;
         
         }
@@ -118,7 +118,7 @@ namespace fasttool_modern.Services
                 
                 if (profile == null)
                 {
-                    Logger.Instance.LogWarning($"Profile with name '{process}' not found.");
+                    Console.WriteLine($"Profile with name '{process}' not found.");
                     // Handle the case where the profile is not found
                     return;
                 }
