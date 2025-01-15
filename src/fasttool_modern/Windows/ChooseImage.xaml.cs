@@ -40,7 +40,7 @@ namespace fasttool_modern
             }
             catch (Exception ex)
             {
-                Logger.Instace.
+                
             }
         }
 
